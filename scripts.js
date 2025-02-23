@@ -1,67 +1,100 @@
-function createCodeBackground() {
+// Matrix background animation
+function createMatrixBackground() {
     const canvas = document.createElement('div');
     canvas.id = 'code-background';
     document.body.appendChild(canvas);
 
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-=[]{}|;:,.<>?';
-    const columns = window.innerWidth / 10;
-    const drops = []; // Define the drops array here
+    function createParticle() {
+        const particle = document.createElement('div');
+        particle.classList.add('code-particle');
+        
+        // Random character
+        const characters = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+        particle.textContent = characters[Math.floor(Math.random() * characters.length)];
+        
+        // Random position
+        particle.style.left = Math.random() * window.innerWidth + 'px';
+        particle.style.top = '-20px';
+        
+        // Random animation duration between 2 and 5 seconds
+        const duration = Math.random() * 3 + 2;
+        particle.style.animation = `fall ${duration}s linear`;
+        
+        canvas.appendChild(particle);
 
-    for (let x = 0; x < columns; x++) {
-        drops.push([]);
-        for (let y = 0; y < 100; y += 10) {
-            const particle = document.createElement('div');
-            particle.classList.add('code-particle');
-            particle.textContent = characters[Math.floor(Math.random() * characters.length)];
-            particle.style.left = (x * 10) + 'px';
-            particle.style.top = (y - Math.random() * 1000) + 'px';
-            particle.style.animation = `matrixFall ${Math.random() * 5 + 3}s linear infinite`;
-            canvas.appendChild(particle);
-            drops[x].push(particle);
-        }
+        // Remove particle after animation
+        setTimeout(() => {
+            particle.remove();
+        }, duration * 1000);
     }
 
+    // Create new particles periodically
+    setInterval(createParticle, 50);
+
+    // Add CSS animation
     const styleSheet = document.createElement('style');
-    document.head.appendChild(styleSheet);
-    styleSheet.sheet.insertRule(`
-        @keyframes matrixFall {
-            0% { top: -1000px; opacity: 1; }
-            100% { top: 100vh; opacity: 0.5; }
+    styleSheet.textContent = `
+        @keyframes fall {
+            from {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(${window.innerHeight}px) rotate(360deg);
+                opacity: 0;
+            }
         }
-    `, 0);
+    `;
+    document.head.appendChild(styleSheet);
 }
 
+// GitHub projects
 async function fetchGitHubProjects() {
-    const username = "arun3676";
-    const response = await fetch(`https://api.github.com/users/${username}/repos`);
-    const repos = await response.json();
-    
-    const container = document.getElementById("projects-container");
-    repos.forEach(repo => {
-        const projectDiv = document.createElement("div");
-        projectDiv.classList.add("project");
-        projectDiv.innerHTML = `
-            <img src="https://via.placeholder.com/300x200?text=${repo.name}" alt="${repo.name}">
-            <h3>${repo.name}</h3>
-            <p>${repo.description || "No description available."}</p>
-            <a href="${repo.html_url}" target="_blank">View on GitHub</a>
-        `;
-        container.appendChild(projectDiv);
-    });
+    try {
+        const username = "arun3676";
+        const response = await fetch(`https://api.github.com/users/${username}/repos`);
+        const repos = await response.json();
+        
+        const container = document.getElementById("projects-container");
+        container.innerHTML = ''; // Clear existing content
+        
+        repos.forEach(repo => {
+            const projectDiv = document.createElement("div");
+            projectDiv.classList.add("project");
+            projectDiv.innerHTML = `
+                <h3>${repo.name}</h3>
+                <p>${repo.description || "No description available."}</p>
+                <a href="${repo.html_url}" target="_blank">View on GitHub</a>
+            `;
+            container.appendChild(projectDiv);
+        });
+    } catch (error) {
+        console.error("Error fetching GitHub projects:", error);
+    }
 }
 
-document.getElementById("contact-form").addEventListener("submit", function(event) {
-    event.preventDefault();
-    alert("Thanks for reaching out! Automation coming soon.");
-});
-
-document.querySelectorAll('.project, .gallery-grid img').forEach(item => {
-    item.addEventListener('click', () => {
-        alert('Clicked! Check out more details on GitHub or my blog.');
-    });
-});
-
-window.onload = () => {
-    createCodeBackground();
+// Event listeners
+document.addEventListener("DOMContentLoaded", function() {
+    // Start matrix background
+    createMatrixBackground();
+    
+    // Fetch GitHub projects
     fetchGitHubProjects();
-};
+    
+    // Contact form handler
+    const contactForm = document.getElementById("contact-form");
+    if (contactForm) {
+        contactForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            alert("Thanks for reaching out! Automation coming soon.");
+        });
+    }
+});
+
+// Handle clicks on projects
+document.addEventListener('click', function(event) {
+    if (event.target.closest('.project')) {
+        const link = event.target.closest('.project').querySelector('a').href;
+        window.open(link, '_blank');
+    }
+});

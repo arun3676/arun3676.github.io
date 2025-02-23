@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arun Chukkala - Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
@@ -21,43 +21,51 @@
             </ul>
         </nav>
     </header>
+
     <main>
         <section id="intro">
-            <h2>Hello, I’m Arun Chukkala</h2>
-            <p>A developer creating innovative AI and data projects. Check out my work below!</p>
+            <h2>Hello, I'm Arun Chukkala</h2>
+            <p>A developer focused on AI and data projects, exploring the future of technology.</p>
         </section>
+
         <section id="portfolio">
             <h2>Portfolio</h2>
-            <div id="projects-container"></div>
+            <div id="projects-container">
+                <!-- Projects will be loaded here via JavaScript -->
+            </div>
         </section>
+
         <section id="gallery">
             <h2>AI Gallery</h2>
             <div class="gallery-grid">
-                <img src="https://via.placeholder.com/300?text=AI+Art+1" alt="AI Art 1">
-                <img src="https://via.placeholder.com/300?text=AI+Art+2" alt="AI Art 2">
+                <!-- Removed placeholder images to avoid loading errors -->
             </div>
         </section>
+
         <section id="blog">
             <h2>Blog</h2>
             <article>
                 <h3>My First Bold Take</h3>
-                <p>Why [topic] is overrated and what we should focus on instead.</p>
+                <p>Exploring the intersection of AI, data science, and human potential.</p>
                 <a href="#">Read More</a>
             </article>
         </section>
+
         <section id="contact">
             <h2>Contact Me</h2>
             <form id="contact-form">
                 <input type="text" name="name" placeholder="Your Name" required>
                 <input type="email" name="email" placeholder="Your Email" required>
-                <textarea name="message" placeholder="Your Message" required></textarea>
-                <button type="submit">Send</button>
+                <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+                <button type="submit">Send Message</button>
             </form>
         </section>
     </main>
+
     <footer>
-        <p>© 2025 Arun Chukkala</p>
+        <p>© 2025 Arun Chukkala | Exploring the Future of Technology</p>
     </footer>
+
     <script src="scripts.js"></script>
 </body>
 </html>
