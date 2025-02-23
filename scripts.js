@@ -37,7 +37,7 @@ function createCodeBackground() {
 
 async function fetchGitHubProjects() {
     const username = "arun3676";
-    const response = await fetch(`https://api.github.com/users/${username}/repos`);
+    const response = await fetch(`https://api.github.com/users/${usernae}/repos`);
     const repos = await response.json();
     
     const container = document.getElementById("projects-container");
