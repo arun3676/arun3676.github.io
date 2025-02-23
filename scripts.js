@@ -5,6 +5,7 @@ function createCodeBackground() {
 
     const characters = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-=[]{}|;:,.<>?';
     const columns = window.innerWidth / 10;
+    const drops = []; // Define the drops array here
 
     for (let x = 0; x < columns; x++) {
         drops.push([]);
