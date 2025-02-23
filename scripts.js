@@ -3,41 +3,37 @@ function createCodeBackground() {
     canvas.id = 'code-background';
     document.body.appendChild(canvas);
 
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-=[]{}|;:,.<>?';
-    const particles = [];
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-=[]{}|;:,.<>?'; // Matrix-style characters
+    const columns = window.innerWidth / 10; // Number of columns based on screen width
 
-    function createParticle() {
-        const particle = document.createElement('div');
-        particle.classList.add('code-particle');
-        particle.textContent = characters[Math.floor(Math.random() * characters.length)];
-        particle.style.left = Math.random() * window.innerWidth + 'px';
-        particle.style.top = -20 + 'px';
-        particle.style.animation = `fall ${Math.random() * 3 + 2}s linear`;
-        canvas.appendChild(particle);
-        particles.push(particle);
-
-        setTimeout(() => {
-            particle.remove();
-            particles.splice(particles.indexOf(particle), 1);
-        }, 5000); // Remove after animation
+    for (let x = 0; x < columns; x++) {
+        drops.push([]);
+        for (let y = 0; y < 100; y += 10) {
+            const particle = document.createElement('div');
+            particle.classList.add('code-particle');
+            particle.textContent = characters[Math.floor(Math.random() * characters.length)];
+            particle.style.left = (x * 10) + 'px';
+            particle.style.top = (y - Math.random() * 1000) + 'px'; // Random starting positions
+            particle.style.animation = `matrixFall ${Math.random() * 5 + 3}s linear infinite`; // Slower, endless fall
+            canvas.appendChild(particle);
+            drops[x].push(particle);
+        }
     }
 
-    setInterval(createParticle, 100);
-
-    // CSS animation for falling
+    // CSS animation for matrix fall
     const styleSheet = document.createElement('style');
     document.head.appendChild(styleSheet);
     styleSheet.sheet.insertRule(`
-        @keyframes fall {
-            0% { top: -20px; opacity: 1; }
-            100% { top: 100vh; opacity: 0; }
+        @keyframes matrixFall {
+            0% { top: -1000px; opacity: 1; }
+            100% { top: 100vh; opacity: 0.5; }
         }
     `, 0);
 }
 
 async function fetchGitHubProjects() {
-    const username = "arun3676";
-    const response = await fetch(`https://api.github.com/users/${usernae}/repos`);
+    const username = "arun3676"; // Your GitHub username
+    const response = await fetch(`https://api.github.com/users/${username}/repos`);
     const repos = await response.json();
     
     const container = document.getElementById("projects-container");
