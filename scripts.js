@@ -3,8 +3,8 @@ function createCodeBackground() {
     canvas.id = 'code-background';
     document.body.appendChild(canvas);
 
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-=[]{}|;:,.<>?'; // Matrix-style characters
-    const columns = window.innerWidth / 10; // Number of columns based on screen width
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-=[]{}|;:,.<>?';
+    const columns = window.innerWidth / 10;
 
     for (let x = 0; x < columns; x++) {
         drops.push([]);
@@ -13,14 +13,13 @@ function createCodeBackground() {
             particle.classList.add('code-particle');
             particle.textContent = characters[Math.floor(Math.random() * characters.length)];
             particle.style.left = (x * 10) + 'px';
-            particle.style.top = (y - Math.random() * 1000) + 'px'; // Random starting positions
-            particle.style.animation = `matrixFall ${Math.random() * 5 + 3}s linear infinite`; // Slower, endless fall
+            particle.style.top = (y - Math.random() * 1000) + 'px';
+            particle.style.animation = `matrixFall ${Math.random() * 5 + 3}s linear infinite`;
             canvas.appendChild(particle);
             drops[x].push(particle);
         }
     }
 
-    // CSS animation for matrix fall
     const styleSheet = document.createElement('style');
     document.head.appendChild(styleSheet);
     styleSheet.sheet.insertRule(`
@@ -32,7 +31,7 @@ function createCodeBackground() {
 }
 
 async function fetchGitHubProjects() {
-    const username = "arun3676"; // Your GitHub username
+    const username = "arun3676";
     const response = await fetch(`https://api.github.com/users/${username}/repos`);
     const repos = await response.json();
     
