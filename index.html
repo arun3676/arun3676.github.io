@@ -12,13 +12,13 @@
     
     <header>
         <h1>ARUN</h1>
-        <p class="caption">Thinking about Mars & AGI</p>
+        <p class="caption">Martian waiting for AGI</p>
         <nav>
             <ul>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#articles">Articles</a></li>
+                <li><a href="#music">Music</a></li>
                 <li><a href="#raw">Raw</a></li>
-                <li><a href="#contact">Contact</a></li>
             </ul>
         </nav>
     </header>
@@ -32,7 +32,9 @@
 
         <section id="projects">
             <h2>Projects</h2>
-            <div id="projects-container"></div>
+            <div id="projects-container">
+                <!-- Projects will be loaded dynamically -->
+            </div>
         </section>
 
         <section id="articles">
@@ -58,6 +60,26 @@
                     <p>A data analyst's perspective on harnessing AI for enhanced insights</p>
                     <a href="https://medium.com/@arunn9694/ai-in-the-workplace-a-data-analysts-perspective-harnessing-the-power-of-ai-for-enhanced-insights-381f97f3eeea" target="_blank" class="read-more">Read Article</a>
                 </article>
+            </div>
+        </section>
+
+        <section id="music">
+            <h2>AI Music</h2>
+            <div class="music-grid">
+                <div class="music-player">
+                    <h3>Maa Meri</h3>
+                    <audio controls>
+                        <source src="audio/Maa Meri.mp3" type="audio/mp3">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                <div class="music-player">
+                    <h3>Only You</h3>
+                    <audio controls>
+                        <source src="audio/Only You.mp3" type="audio/mp3">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
             </div>
         </section>
 
@@ -89,16 +111,6 @@
                     <cite>- Thomas Shelby</cite>
                 </blockquote>
             </div>
-        </section>
-
-        <section id="contact">
-            <h2>Contact</h2>
-            <form id="contact-form">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="email" name="email" placeholder="Your Email" required>
-                <textarea name="message" placeholder="Your Message" rows="4" required></textarea>
-                <button type="submit">Send Message</button>
-            </form>
         </section>
     </main>
 

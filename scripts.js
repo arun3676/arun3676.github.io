@@ -100,19 +100,6 @@ async function fetchGitHubProjects() {
     }
 }
 
-// Handle contact form
-function initializeContactForm() {
-    const form = document.getElementById('contact-form');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            alert('Thanks for reaching out! Message functionality coming soon.');
-            form.reset();
-        });
-    }
-}
-
 // Animate links on hover
 function initializeLinkAnimations() {
     document.querySelectorAll('a').forEach(link => {
@@ -131,7 +118,6 @@ function initializeLinkAnimations() {
 document.addEventListener('DOMContentLoaded', () => {
     createMatrixRain();
     fetchGitHubProjects();
-    initializeContactForm();
     initializeLinkAnimations();
 });
 
