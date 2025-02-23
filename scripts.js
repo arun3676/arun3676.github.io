@@ -1,39 +1,67 @@
-function createCodeBackground() {
-    const canvas = document.createElement('div');
-    canvas.id = 'code-background';
-    document.body.appendChild(canvas);
-
-    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()+-=[]{}|;:,.<>?';
-    const particles = [];
-
-    function createParticle() {
-        const particle = document.createElement('div');
-        particle.classList.add('code-particle');
-        particle.textContent = characters[Math.floor(Math.random() * characters.length)];
-        particle.style.left = Math.random() * window.innerWidth + 'px';
-        particle.style.top = '-20px';
-        particle.style.animation = `fall ${Math.random() * 3 + 2}s linear`;
-        canvas.appendChild(particle);
-        particles.push(particle);
-
-        setTimeout(() => {
-            particle.remove();
-            particles.splice(particles.indexOf(particle), 1);
-        }, 5000);
-    }
-
-    setInterval(createParticle, 50);
-
-    const styleSheet = document.createElement('style');
-    document.head.appendChild(styleSheet);
-    styleSheet.sheet.insertRule(`
-        @keyframes fall {
-            0% { top: -20px; opacity: 1; }
-            100% { top: 100vh; opacity: 0; }
-        }
-    `, 0);
+// Create starry background
+function createStarryBackground() {
+    const stars = document.createElement('div');
+    stars.id = 'stars';
+    document.body.appendChild(stars);
 }
 
+// Code animation with syntax highlighting
+function createCodeBackground() {
+    const snippets = [
+        { text: 'for(', color: 'yellow' },
+        { text: 'day', color: 'purple' },
+        { text: ' = 1; ', color: 'yellow' },
+        { text: 'day', color: 'purple' },
+        { text: ' <= 7; ', color: 'yellow' },
+        { text: 'day++', color: 'purple' },
+        { text: ') {', color: 'yellow' },
+        { text: 'if(', color: 'blue' },
+        { text: 'week[', color: 'blue' },
+        { text: 'day', color: 'yellow' },
+        { text: '] === weekend', color: 'blue' },
+        { text: ') {', color: 'blue' },
+        { text: 'doRest()', color: 'green' },
+        { text: '} else {', color: 'blue' },
+        { text: 'hardWork(', color: 'orange' },
+        { text: 'consistency', color: 'green' },
+        { text: ')}', color: 'orange' }
+    ];
+
+    function createCodeParticle() {
+        const snippet = snippets[Math.floor(Math.random() * snippets.length)];
+        const particle = document.createElement('div');
+        particle.classList.add('code-particle', `code-${snippet.color}`);
+        particle.textContent = snippet.text;
+        
+        // Random position and animation
+        const startX = Math.random() * window.innerWidth;
+        particle.style.left = startX + 'px';
+        particle.style.top = '-20px';
+        
+        const duration = Math.random() * 3 + 4;
+        particle.style.animation = `fall ${duration}s linear`;
+        
+        document.body.appendChild(particle);
+
+        // Remove particle after animation
+        setTimeout(() => particle.remove(), duration * 1000);
+    }
+
+    // Add CSS animation
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = `
+        @keyframes fall {
+            from { transform: translateY(0) translateX(0); opacity: 0.8; }
+            to { transform: translateY(${window.innerHeight + 20}px) translateX(20px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(styleSheet);
+
+    // Create particles periodically
+    setInterval(createCodeParticle, 200);
+}
+
+// Fetch and display GitHub projects
 async function fetchGitHubProjects() {
     try {
         const username = "arun3676";
@@ -43,13 +71,11 @@ async function fetchGitHubProjects() {
         const container = document.getElementById("projects-container");
         if (!container) return;
         
-        container.innerHTML = ''; // Clear existing content
+        container.innerHTML = '';
         
-        // Filter and sort repos
         const significantRepos = repos
-            .filter(repo => !repo.fork && repo.description) // Only show repos with descriptions
-            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at)) // Sort by most recently updated
-            .slice(0, 6); // Show top 6 repos
+            .filter(repo => !repo.fork && repo.description)
+            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
 
         significantRepos.forEach(repo => {
             const projectDiv = document.createElement("div");
@@ -59,7 +85,7 @@ async function fetchGitHubProjects() {
                 <p>${repo.description || "No description available."}</p>
                 <div class="project-footer">
                     <span class="project-language">${repo.language || 'N/A'}</span>
-                    <a href="${repo.html_url}" target="_blank" class="view-project">View Project</a>
+                    <a href="${repo.html_url}" target="_blank" class="read-more">View Project</a>
                 </div>
             `;
             container.appendChild(projectDiv);
@@ -69,14 +95,18 @@ async function fetchGitHubProjects() {
     }
 }
 
-// Initialize on page load
-window.onload = () => {
+// Initialize everything
+window.addEventListener('DOMContentLoaded', () => {
+    createStarryBackground();
     createCodeBackground();
     fetchGitHubProjects();
-};
 
-// Handle form submission
-document.getElementById("contact-form")?.addEventListener("submit", function(event) {
-    event.preventDefault();
-    alert("Thanks for reaching out! Message functionality coming soon.");
+    // Handle contact form
+    const form = document.getElementById('contact-form');
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Thanks for reaching out! Message functionality coming soon.');
+        });
+    }
 });
