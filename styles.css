@@ -2867,7 +2867,7 @@ html, body {
     color: var(--bg-dark);
     box-shadow: 0 0 15px var(--neon-green);
 }
-
+/* Improved Universe Chat Interface */
 .universe-chat-container {
     border: 1px solid var(--neon-green);
     border-radius: var(--border-radius);
@@ -2876,6 +2876,8 @@ html, body {
     max-height: 500px;
     display: flex;
     flex-direction: column;
+    background-color: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
 }
 
 .universe-chat-header {
@@ -2883,27 +2885,8 @@ html, body {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 0.9);
     border-bottom: 1px solid var(--neon-green);
-}
-
-.universe-chat-header h3 {
-    color: var(--neon-green);
-    margin: 0;
-}
-
-#close-universe-chat {
-    background: transparent;
-    border: none;
-    color: var(--neon-green);
-    font-size: 1.5rem;
-    cursor: pointer;
-    transition: all var(--transition-medium) ease;
-}
-
-#close-universe-chat:hover {
-    transform: scale(1.2);
-    text-shadow: 0 0 10px var(--neon-green);
 }
 
 .universe-chat-messages {
@@ -2914,77 +2897,135 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    background-color: rgba(0, 0, 0, 0.5);
 }
 
 .universe-message {
-    max-width: 80%;
-    padding: 0.8rem 1rem;
+    max-width: 85%;
+    padding: 1rem;
     border-radius: 1rem;
     animation: fadeIn 0.3s ease;
+    line-height: 1.5;
 }
 
-.universe-message p {
-    margin: 0;
-    color: var(--text-white);
+.topic-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
 }
 
-.universe-message.user {
-    align-self: flex-end;
-    background-color: rgba(0, 255, 0, 0.2);
-    border: 1px solid var(--neon-green);
-}
-
-.universe-message.bot {
-    align-self: flex-start;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.universe-chat-input {
-    display: flex;
+.topic-btn {
     padding: 1rem;
-    border-top: 1px solid rgba(0, 255, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 80px;
 }
-
-#universe-user-message {
-    flex: 1;
-    padding: 0.8rem 1rem;
+/* Add this CSS to your styles.css file */
+/* Space Invaders Game Styles */
+.game-container {
+    background: rgba(0, 0, 0, 0.7);
     border: 1px solid var(--neon-green);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: var(--text-white);
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-    font-family: 'Fira Code', monospace;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin: 2rem 0;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-#universe-send-message {
-    padding: 0.8rem 1.5rem;
+.game-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.game-btn {
     background-color: var(--neon-green);
     color: var(--bg-dark);
     border: none;
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    cursor: pointer;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
     font-family: 'Fira Code', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 1rem 0;
     transition: all var(--transition-medium) ease;
 }
 
-#universe-send-message:hover {
-    background-color: #00ff00;
-    box-shadow: 0 0 10px var(--neon-green);
+.game-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px var(--neon-green);
+}
+
+.game-score {
+    display: flex;
+    justify-content: space-around;
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    color: var(--neon-green);
+}
+
+#game-area {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow: hidden;
+}
+
+#game-canvas {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--neon-green);
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3) inset;
+}
+
+.game-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 30;
+}
+
+.game-message h3 {
+    color: var(--neon-green);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+.game-message p {
+    color: var(--text-white);
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.hidden {
+    display: none !important;
 }
 
 @media (max-width: 768px) {
-    .topic-selector {
-        grid-template-columns: repeat(2, 1fr);
+    #game-canvas {
+        height: 350px;
     }
     
-    .universe-chat-messages {
-        max-height: 300px;
+    .game-message h3 {
+        font-size: 2rem;
     }
-}
-
-@media (max-width: 480px) {
-    .topic-btn {
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
+    
+    .game-message p {
+        font-size: 1.2rem;
     }
 }

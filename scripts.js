@@ -897,13 +897,11 @@ function initializeLinkAnimations() {
 }
 // Add this to your scripts.js file or create a new file called game.js and link it in your HTML
 
-// Initialize Power Rangers Game
-function initializePowerRangersGame() {
-    // Game elements
-    const gameArea = document.getElementById('game-area');
-    const rangerSelect = document.getElementById('ranger-select');
-    const gamePlayArea = document.getElementById('game-play-area');
-    const player = document.getElementById('player');
+
+// Add this to your scripts.js file
+function initializeSpaceInvadersGame() {
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
     const startButton = document.getElementById('start-game');
     const gameOverScreen = document.getElementById('game-over');
     const levelUpScreen = document.getElementById('level-up');
@@ -911,198 +909,451 @@ function initializePowerRangersGame() {
     const scoreElement = document.getElementById('score');
     const finalScoreElement = document.getElementById('final-score');
     const levelElement = document.getElementById('level');
-    const timeElement = document.getElementById('time');
+    const livesElement = document.getElementById('lives');
     
-    // Game variables
+    // Game state
+    let gameActive = false;
     let score = 0;
     let level = 1;
-    let time = 60;
-    let gameActive = false;
-    let selectedRanger = '';
-    let rangerColor = '';
-    let monsterInterval;
-    let monsterSpeed = 2;
-    let monsterSpawnRate = 2000;
-    let countdown;
+    let lives = 3;
+    let invaders = [];
+    let playerShip = null;
+    let bullets = [];
+    let enemyBullets = [];
+    let lastTime = 0;
+    let enemyDirection = 1;
+    let shootCooldown = 0;
+    let enemyShootInterval = 1000;
+    let lastEnemyShot = 0;
     
-    // Initialize
-    function init() {
-        // Set up ranger selection
-        const rangerOptions = document.querySelectorAll('.ranger-option');
-        rangerOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                selectedRanger = option.getAttribute('data-ranger');
-                rangerColor = getComputedStyle(option.querySelector('.ranger')).backgroundColor;
-                rangerSelect.classList.add('hidden');
-                gamePlayArea.classList.remove('hidden');
-                player.style.backgroundColor = rangerColor;
-                startGame();
-            });
-        });
+    // Ship class
+    class Ship {
+        constructor(x, y, width, height, color) {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.speed = 5;
+        }
         
-        // Set up start button
-        startButton.addEventListener('click', () => {
-            rangerSelect.classList.remove('hidden');
-            startButton.classList.add('hidden');
-        });
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.beginPath();
+            ctx.moveTo(this.x, this.y + this.height);
+            ctx.lineTo(this.x + this.width / 2, this.y);
+            ctx.lineTo(this.x + this.width, this.y + this.height);
+            ctx.fill();
+            
+            // Add glow effect
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = this.color;
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
         
-        // Set up play again button
-        playAgainButton.addEventListener('click', resetGame);
+        moveLeft() {
+            this.x = Math.max(0, this.x - this.speed);
+        }
         
-        // Set up mouse and touch movement
-        gamePlayArea.addEventListener('mousemove', movePlayer);
-        gamePlayArea.addEventListener('touchmove', movePlayerTouch);
-        
-        // Set up click/tap to shoot
-        gamePlayArea.addEventListener('click', shootBeam);
-        gamePlayArea.addEventListener('touchend', shootBeam);
+        moveRight() {
+            this.x = Math.min(canvas.width - this.width, this.x + this.speed);
+        }
     }
     
-    // Start the game
+    // Invader class
+    class Invader {
+        constructor(x, y, size, color, points) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.color = color;
+            this.points = points;
+            this.alive = true;
+        }
+        
+        draw() {
+            if (!this.alive) return;
+            
+            ctx.fillStyle = this.color;
+            
+            // Draw alien-like shape
+            ctx.beginPath();
+            ctx.rect(this.x, this.y, this.size, this.size / 2);
+            
+            // Draw "tentacles"
+            ctx.rect(this.x + this.size * 0.1, this.y + this.size / 2, this.size * 0.15, this.size / 4);
+            ctx.rect(this.x + this.size * 0.75, this.y + this.size / 2, this.size * 0.15, this.size / 4);
+            ctx.rect(this.x + this.size * 0.3, this.y + this.size / 2, this.size * 0.15, this.size / 3);
+            ctx.rect(this.x + this.size * 0.55, this.y + this.size / 2, this.size * 0.15, this.size / 3);
+            
+            ctx.fill();
+            
+            // Add eyes
+            ctx.fillStyle = "yellow";
+            ctx.beginPath();
+            ctx.arc(this.x + this.size * 0.25, this.y + this.size * 0.25, this.size * 0.1, 0, Math.PI * 2);
+            ctx.arc(this.x + this.size * 0.75, this.y + this.size * 0.25, this.size * 0.1, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        move(dx, dy) {
+            this.x += dx;
+            this.y += dy;
+        }
+        
+        shoot() {
+            if (!this.alive) return null;
+            
+            return new Bullet(
+                this.x + this.size / 2,
+                this.y + this.size,
+                3,
+                10,
+                "red",
+                5
+            );
+        }
+    }
+    
+    // Bullet class
+    class Bullet {
+        constructor(x, y, width, height, color, speed) {
+            this.x = x - width / 2;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+            this.color = color;
+            this.speed = speed;
+        }
+        
+        draw() {
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            
+            // Add glow effect
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = this.color;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+            ctx.shadowBlur = 0;
+        }
+        
+        move() {
+            this.y -= this.speed;
+        }
+        
+        moveDown() {
+            this.y += this.speed;
+        }
+        
+        isOffScreen() {
+            return this.y < 0 || this.y > canvas.height;
+        }
+        
+        hasCollided(entity) {
+            return (
+                this.x < entity.x + entity.width &&
+                this.x + this.width > entity.x &&
+                this.y < entity.y + entity.height &&
+                this.y + this.height > entity.y
+            );
+        }
+        
+        hasCollidedWithInvader(invader) {
+            if (!invader.alive) return false;
+            
+            return (
+                this.x < invader.x + invader.size &&
+                this.x + this.width > invader.x &&
+                this.y < invader.y + invader.size &&
+                this.y + this.height > invader.y
+            );
+        }
+    }
+    
+    // Initialize the game
+    function init() {
+        // Set up event listeners
+        startButton.addEventListener('click', startGame);
+        playAgainButton.addEventListener('click', resetGame);
+        
+        // Set up keyboard controls
+        document.addEventListener('keydown', handleKeyDown);
+        
+        // Set up touch controls for mobile
+        canvas.addEventListener('touchmove', handleTouchMove);
+        canvas.addEventListener('touchend', handleTouchShoot);
+        
+        // Set canvas dimensions based on its display size
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        
+        // Do an initial resize
+        window.addEventListener('resize', handleResize);
+        handleResize();
+    }
+    
+    // Handle window resize
+    function handleResize() {
+        // Get the container width
+        const gameArea = document.getElementById('game-area');
+        const containerWidth = gameArea.clientWidth;
+        
+        // Calculate new canvas dimensions while maintaining aspect ratio
+        const aspectRatio = canvas.width / canvas.height;
+        const newWidth = Math.min(800, containerWidth - 20); // 20px padding
+        const newHeight = newWidth / aspectRatio;
+        
+        // Update canvas display size
+        canvas.style.width = `${newWidth}px`;
+        canvas.style.height = `${newHeight}px`;
+    }
+    
+    // Start game
     function startGame() {
         gameActive = true;
         score = 0;
         level = 1;
-        time = 60;
-        monsterSpeed = 2;
-        monsterSpawnRate = 2000;
+        lives = 3;
         
+        // Hide start button
+        startButton.classList.add('hidden');
+        
+        // Update score display
         updateScore();
         updateLevel();
-        updateTime();
+        updateLives();
         
-        // Start spawning monsters
-        monsterInterval = setInterval(spawnMonster, monsterSpawnRate);
+        // Create player ship
+        const shipWidth = 40;
+        const shipHeight = 30;
+        playerShip = new Ship(
+            canvas.width / 2 - shipWidth / 2,
+            canvas.height - shipHeight - 10,
+            shipWidth,
+            shipHeight,
+            '#0f0'
+        );
         
-        // Start countdown
-        countdown = setInterval(() => {
-            time--;
-            updateTime();
-            
-            if (time <= 0) {
-                endGame();
-            }
-        }, 1000);
+        // Initialize invaders
+        createInvaders();
+        
+        // Start game loop
+        lastTime = performance.now();
+        requestAnimationFrame(gameLoop);
     }
     
     // Reset game
     function resetGame() {
-        // Clear all monsters
-        const monsters = document.querySelectorAll('.monster');
-        monsters.forEach(monster => monster.remove());
+        // Clear game elements
+        invaders = [];
+        bullets = [];
+        enemyBullets = [];
         
         // Hide game over screen
         gameOverScreen.classList.add('hidden');
         
-        // Show ranger selection
-        rangerSelect.classList.remove('hidden');
-        gamePlayArea.classList.add('hidden');
+        // Show start button
         startButton.classList.remove('hidden');
     }
     
-    // End game
-    function endGame() {
-        gameActive = false;
-        clearInterval(monsterInterval);
-        clearInterval(countdown);
+    // Create invaders
+    function createInvaders() {
+        invaders = [];
+        const rows = 3 + level - 1;
+        const cols = 8;
+        const size = 30;
+        const padding = 15;
+        const startX = (canvas.width - (cols * (size + padding) - padding)) / 2;
+        const startY = 50;
         
-        // Remove all monsters
-        const monsters = document.querySelectorAll('.monster');
-        monsters.forEach(monster => monster.remove());
+        const colors = ['#ff0099', '#00ffff', '#ff00ff'];
         
-        // Show game over screen
-        finalScoreElement.textContent = score;
-        gameOverScreen.classList.remove('hidden');
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                const x = startX + col * (size + padding);
+                const y = startY + row * (size + padding);
+                const color = colors[row % colors.length];
+                const points = (rows - row) * 10; // Higher rows are worth more
+                
+                invaders.push(new Invader(x, y, size, color, points));
+            }
+        }
     }
     
-    // Spawn a monster
-    function spawnMonster() {
+    // Game loop
+    function gameLoop(timestamp) {
         if (!gameActive) return;
         
-        const monster = document.createElement('div');
-        monster.classList.add('monster');
+        // Calculate delta time
+        const deltaTime = timestamp - lastTime;
+        lastTime = timestamp;
         
-        // Add monster features
-        const mouth = document.createElement('div');
-        mouth.classList.add('monster-mouth');
-        monster.appendChild(mouth);
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Random position
-        const position = Math.random() * (gameArea.offsetWidth - 50);
-        monster.style.left = `${position}px`;
-        monster.style.top = '0px';
+        // Update and draw player
+        playerShip.draw();
         
-        // Custom color for variety
-        const monsterColors = ['purple', '#8B008B', '#9400D3', '#800080', '#4B0082'];
-        monster.style.backgroundColor = monsterColors[Math.floor(Math.random() * monsterColors.length)];
+        // Update and draw bullets
+        updateBullets(deltaTime);
         
-        // Add click handler to destroy monster
-        monster.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent shooting beam when clicking monster
-            destroyMonster(monster);
+        // Update and draw invaders
+        updateInvaders(deltaTime);
+        
+        // Enemy shooting
+        handleEnemyShooting(timestamp);
+        
+        // Check for end of level
+        if (invaders.every(invader => !invader.alive)) {
+            levelUp();
+        }
+        
+        // Decrement shoot cooldown
+        if (shootCooldown > 0) {
+            shootCooldown -= deltaTime;
+        }
+        
+        // Continue the game loop
+        requestAnimationFrame(gameLoop);
+    }
+    
+    // Update bullets
+    function updateBullets(deltaTime) {
+        // Update player bullets
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            const bullet = bullets[i];
+            bullet.move();
+            bullet.draw();
+            
+            // Check for collisions with invaders
+            for (let j = 0; j < invaders.length; j++) {
+                if (bullet.hasCollidedWithInvader(invaders[j])) {
+                    // Add points
+                    score += invaders[j].points;
+                    updateScore();
+                    
+                    // Remove invader and bullet
+                    invaders[j].alive = false;
+                    bullets.splice(i, 1);
+                    
+                    // Add explosion effect
+                    createExplosion(invaders[j].x + invaders[j].size / 2, invaders[j].y + invaders[j].size / 2);
+                    
+                    break;
+                }
+            }
+            
+            // Remove bullets that are off screen
+            if (bullet && bullet.isOffScreen()) {
+                bullets.splice(i, 1);
+            }
+        }
+        
+        // Update enemy bullets
+        for (let i = enemyBullets.length - 1; i >= 0; i--) {
+            const bullet = enemyBullets[i];
+            bullet.moveDown();
+            bullet.draw();
+            
+            // Check for collision with player
+            if (bullet.hasCollided(playerShip)) {
+                // Player hit
+                lives--;
+                updateLives();
+                
+                // Remove bullet
+                enemyBullets.splice(i, 1);
+                
+                // Game over if out of lives
+                if (lives <= 0) {
+                    endGame();
+                    return;
+                }
+                
+                // Add hit effect
+                createExplosion(playerShip.x + playerShip.width / 2, playerShip.y + playerShip.height / 2);
+                continue;
+            }
+            
+            // Remove bullets that are off screen
+            if (bullet.isOffScreen()) {
+                enemyBullets.splice(i, 1);
+            }
+        }
+    }
+    
+    // Update invaders
+    function updateInvaders(deltaTime) {
+        let moveDown = false;
+        let aliveInvaders = invaders.filter(invader => invader.alive);
+        
+        // Find leftmost and rightmost invaders
+        let leftmost = canvas.width;
+        let rightmost = 0;
+        
+        aliveInvaders.forEach(invader => {
+            leftmost = Math.min(leftmost, invader.x);
+            rightmost = Math.max(rightmost, invader.x + invader.size);
         });
         
-        gamePlayArea.appendChild(monster);
+        // Check if invaders hit the edge
+        if (rightmost >= canvas.width || leftmost <= 0) {
+            enemyDirection *= -1;
+            moveDown = true;
+        }
         
-        // Animate monster falling
-        let position_y = 0;
-        const monsterFall = setInterval(() => {
-            if (!gameActive || !monster.isConnected) {
-                clearInterval(monsterFall);
+        // Move invaders
+        const speed = 1 + level * 0.5; // Increase speed with level
+        invaders.forEach(invader => {
+            if (!invader.alive) return;
+            
+            invader.move(speed * enemyDirection, 0);
+            
+            if (moveDown) {
+                invader.move(0, 20);
+            }
+            
+            // Check if invaders reached the bottom
+            if (invader.y + invader.size >= playerShip.y) {
+                endGame();
                 return;
             }
             
-            position_y += monsterSpeed;
-            monster.style.top = `${position_y}px`;
-            
-            // Check if monster reached bottom
-            if (position_y > gameArea.offsetHeight - 50) {
-                clearInterval(monsterFall);
-                monster.remove();
-                
-                // Penalty for missed monster
-                score = Math.max(0, score - 5);
-                updateScore();
-                
-                // Visual feedback
-                gamePlayArea.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
-                setTimeout(() => {
-                    gamePlayArea.style.backgroundColor = 'transparent';
-                }, 200);
-            }
-        }, 30);
+            invader.draw();
+        });
     }
     
-    // Destroy monster and add explosion effect
-    function destroyMonster(monster) {
-        // Prevent multiple clicks
-        if (!monster.isConnected) return;
+    // Handle enemy shooting
+    function handleEnemyShooting(timestamp) {
+        if (timestamp - lastEnemyShot < enemyShootInterval) return;
         
-        // Create explosion
-        const explosion = document.createElement('div');
-        explosion.classList.add('explosion');
-        explosion.style.left = monster.style.left;
-        explosion.style.top = monster.style.top;
-        gamePlayArea.appendChild(explosion);
+        lastEnemyShot = timestamp;
         
-        // Remove explosion after animation
-        setTimeout(() => {
-            if (explosion.isConnected) {
-                explosion.remove();
-            }
-        }, 500);
+        // Get alive invaders
+        const aliveInvaders = invaders.filter(invader => invader.alive);
+        if (aliveInvaders.length === 0) return;
         
-        // Remove monster
-        monster.remove();
+        // Random invader shoots
+        const randomInvader = aliveInvaders[Math.floor(Math.random() * aliveInvaders.length)];
+        const bullet = randomInvader.shoot();
         
-        // Add score
-        score += 10;
-        updateScore();
-        
-        // Check for level up
-        if (score >= level * 100) {
-            levelUp();
+        if (bullet) {
+            enemyBullets.push(bullet);
         }
+    }
+    
+    // Create explosion effect
+    function createExplosion(x, y) {
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 200, 0, 0.7)";
+        ctx.fill();
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 10, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+        ctx.fill();
     }
     
     // Level up
@@ -1112,86 +1363,28 @@ function initializePowerRangersGame() {
         
         // Show level up message
         levelUpScreen.classList.remove('hidden');
+        
+        // Pause the game briefly
+        gameActive = false;
+        
+        // Continue after delay
         setTimeout(() => {
             levelUpScreen.classList.add('hidden');
-        }, 1500);
-        
-        // Increase difficulty
-        monsterSpeed += 0.5;
-        monsterSpawnRate = Math.max(500, monsterSpawnRate - 300);
-        
-        // Restart monster spawning with new rate
-        clearInterval(monsterInterval);
-        monsterInterval = setInterval(spawnMonster, monsterSpawnRate);
-        
-        // Add time bonus
-        time += 15;
-        updateTime();
-    }
-    
-    // Move player with mouse
-    function movePlayer(e) {
-        if (!gameActive) return;
-        
-        const rect = gamePlayArea.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const position = Math.max(30, Math.min(gameArea.offsetWidth - 30, x));
-        player.style.left = `${position}px`;
-    }
-    
-    // Move player with touch
-    function movePlayerTouch(e) {
-        if (!gameActive) return;
-        e.preventDefault();
-        
-        const rect = gamePlayArea.getBoundingClientRect();
-        const x = e.touches[0].clientX - rect.left;
-        const position = Math.max(30, Math.min(gameArea.offsetWidth - 30, x));
-        player.style.left = `${position}px`;
-    }
-    
-    // Shoot beam
-    function shootBeam(e) {
-        if (!gameActive) return;
-        
-        const beam = document.createElement('div');
-        beam.classList.add('beam');
-        
-        // Position the beam at player's position
-        const playerPos = player.getBoundingClientRect();
-        const gamePos = gamePlayArea.getBoundingClientRect();
-        const beamX = playerPos.left + playerPos.width / 2 - gamePos.left;
-        
-        beam.style.left = `${beamX}px`;
-        beam.style.bottom = '80px';
-        gamePlayArea.appendChild(beam);
-        
-        // Remove beam after animation
-        setTimeout(() => {
-            if (beam.isConnected) {
-                beam.remove();
-            }
-        }, 300);
-        
-        // Check for collision with monsters
-        checkBeamCollisions(beam);
-    }
-    
-    // Check if beam hits any monsters
-    function checkBeamCollisions(beam) {
-        const monsters = document.querySelectorAll('.monster');
-        const beamRect = beam.getBoundingClientRect();
-        
-        monsters.forEach(monster => {
-            const monsterRect = monster.getBoundingClientRect();
+            createInvaders();
             
-            // Simple collision detection
-            if (beamRect.left < monsterRect.right && 
-                beamRect.right > monsterRect.left &&
-                beamRect.top < monsterRect.bottom) {
-                destroyMonster(monster);
-            }
-        });
+            // Increase enemy shooting frequency
+            enemyShootInterval = Math.max(300, 1000 - level * 100);
+            
+            gameActive = true;
+            requestAnimationFrame(gameLoop);
+        }, 2000);
+    }
+    
+    // End game
+    function endGame() {
+        gameActive = false;
+        finalScoreElement.textContent = score;
+        gameOverScreen.classList.remove('hidden');
     }
     
     // Update score display
@@ -1204,23 +1397,73 @@ function initializePowerRangersGame() {
         levelElement.textContent = level;
     }
     
-    // Update time display
-    function updateTime() {
-        timeElement.textContent = time;
+    // Update lives display
+    function updateLives() {
+        livesElement.textContent = lives;
+    }
+    
+    // Handle keyboard controls
+    function handleKeyDown(e) {
+        if (!gameActive) return;
+        
+        if (e.key === 'ArrowLeft') {
+            playerShip.moveLeft();
+        } else if (e.key === 'ArrowRight') {
+            playerShip.moveRight();
+        } else if (e.key === ' ' || e.key === 'ArrowUp') {
+            shootBullet();
+        }
+    }
+    
+    // Handle touch movement
+    function handleTouchMove(e) {
+        if (!gameActive) return;
+        e.preventDefault();
+        
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        const x = touch.clientX - rect.left;
+        
+        // Move player ship to touch position
+        playerShip.x = Math.max(0, Math.min(canvas.width - playerShip.width, x - playerShip.width / 2));
+    }
+    
+    // Handle touch shoot
+    function handleTouchShoot(e) {
+        if (!gameActive) return;
+        e.preventDefault();
+        
+        shootBullet();
+    }
+    
+    // Shoot bullet
+    function shootBullet() {
+        if (shootCooldown > 0) return;
+        
+        const bullet = new Bullet(
+            playerShip.x + playerShip.width / 2,
+            playerShip.y,
+            3,
+            10,
+            '#0f0',
+            10
+        );
+        
+        bullets.push(bullet);
+        
+        // Set cooldown to prevent rapid fire
+        shootCooldown = 200;
     }
     
     // Initialize the game
     init();
 }
 
-// Add this line to your DOMContentLoaded event listener in scripts.js
+// Add this to your DOMContentLoaded event listener in scripts.js
 document.addEventListener('DOMContentLoaded', function() {
     // ... your existing initializations
-    initializePowerRangersGame();
+    initializeSpaceInvadersGame();
 });
-
-// Add this to your scripts.js file to create a better experience for Instagram visitors
-
 function initializeInstagramLanding() {
     // Check if visitor is coming from Instagram
     const isFromInstagram = document.referrer.includes('instagram') || 

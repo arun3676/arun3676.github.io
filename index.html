@@ -294,51 +294,21 @@
             </div>
         </section>
         <!-- Add this section to your index.html -->
+<!-- Replace the existing game section with this in your index.html -->
 <section id="game">
-    <h2>Power Rangers Game</h2>
+    <h2>Space Invaders X</h2>
     <div class="game-container">
         <div class="game-intro">
-            <p>Help the Power Rangers defend the city! Click on the monsters to defeat them before they reach the bottom of the screen!</p>
+            <p>Defend Earth from waves of alien invaders in this retro-inspired space shooter!</p>
             <button id="start-game" class="game-btn">Start Game</button>
             <div class="game-score">
                 <span>Score: <span id="score">0</span></span>
                 <span>Level: <span id="level">1</span></span>
-                <span>Time: <span id="time">60</span>s</span>
+                <span>Lives: <span id="lives">3</span></span>
             </div>
         </div>
         <div id="game-area">
-            <div id="ranger-select" class="ranger-select">
-                <h3>Choose Your Ranger</h3>
-                <div class="rangers-grid">
-                    <div class="ranger-option" data-ranger="red">
-                        <div class="ranger red-ranger"></div>
-                        <p>Red Ranger</p>
-                    </div>
-                    <div class="ranger-option" data-ranger="blue">
-                        <div class="ranger blue-ranger"></div>
-                        <p>Blue Ranger</p>
-                    </div>
-                    <div class="ranger-option" data-ranger="yellow">
-                        <div class="ranger yellow-ranger"></div>
-                        <p>Yellow Ranger</p>
-                    </div>
-                    <div class="ranger-option" data-ranger="black">
-                        <div class="ranger black-ranger"></div>
-                        <p>Black Ranger</p>
-                    </div>
-                    <div class="ranger-option" data-ranger="pink">
-                        <div class="ranger pink-ranger"></div>
-                        <p>Pink Ranger</p>
-                    </div>
-                    <div class="ranger-option" data-ranger="green">
-                        <div class="ranger green-ranger"></div>
-                        <p>Green Ranger</p>
-                    </div>
-                </div>
-            </div>
-            <div id="game-play-area" class="hidden">
-                <div id="player" class="player"></div>
-            </div>
+            <canvas id="game-canvas" width="800" height="500"></canvas>
             <div id="game-over" class="game-message hidden">
                 <h3>Game Over!</h3>
                 <p>Your final score: <span id="final-score">0</span></p>
@@ -346,11 +316,11 @@
             </div>
             <div id="level-up" class="game-message hidden">
                 <h3>Level Up!</h3>
-                <p>Get ready for more monsters!</p>
+                <p>Get ready for more invaders!</p>
             </div>
         </div>
     </div>
-</section> 
+</section>
     
     <section id="chatbot">
         <h2>Grumpy Cat Chat</h2>
