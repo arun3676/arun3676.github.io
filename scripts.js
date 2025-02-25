@@ -1200,3 +1200,94 @@ document.addEventListener('DOMContentLoaded', function() {
     // ... your existing initializations
     initializePowerRangersGame();
 });
+
+// Add this to your scripts.js file to create a better experience for Instagram visitors
+
+function initializeInstagramLanding() {
+    // Check if visitor is coming from Instagram
+    const isFromInstagram = document.referrer.includes('instagram') || 
+                           window.location.search.includes('from=instagram');
+    
+    if (isFromInstagram) {
+        // Show a welcome toast for Instagram visitors
+        setTimeout(() => {
+            showToast('Welcome from Instagram! 👋 Explore my portfolio and play the Power Rangers game!', 'success');
+        }, 2000);
+        
+        // Add a special class to body for Instagram-specific styling if needed
+        document.body.classList.add('instagram-visitor');
+        
+        // Optional: Scroll to game section after a delay
+        setTimeout(() => {
+            const gameSection = document.getElementById('game');
+            if (gameSection) {
+                gameSection.scrollIntoView({ behavior: 'smooth' });
+                
+                // Highlight the game section
+                gameSection.classList.add('instagram-highlight');
+                setTimeout(() => {
+                    gameSection.classList.remove('instagram-highlight');
+                }, 2000);
+            }
+        }, 4000);
+        
+        // Add Instagram back button at bottom
+        const backButton = document.createElement('a');
+        backButton.href = 'instagram://';
+        backButton.classList.add('instagram-back-button');
+        backButton.textContent = 'Back to Instagram';
+        document.body.appendChild(backButton);
+    }
+}
+
+// Add this to your DOMContentLoaded event listener in scripts.js
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing initializations
+    initializeInstagramLanding();
+});
+
+// Add this to your scripts.js file to create a better experience for Instagram visitors
+
+function initializeInstagramLanding() {
+    // Check if visitor is coming from Instagram
+    const isFromInstagram = document.referrer.includes('instagram') || 
+                           window.location.search.includes('from=instagram');
+    
+    if (isFromInstagram) {
+        // Show a welcome toast for Instagram visitors
+        setTimeout(() => {
+            showToast('Welcome from Instagram! 👋 Explore my portfolio and play the Power Rangers game!', 'success');
+        }, 2000);
+        
+        // Add a special class to body for Instagram-specific styling if needed
+        document.body.classList.add('instagram-visitor');
+        
+        // Optional: Scroll to game section after a delay
+        setTimeout(() => {
+            const gameSection = document.getElementById('game');
+            if (gameSection) {
+                gameSection.scrollIntoView({ behavior: 'smooth' });
+                
+                // Highlight the game section
+                gameSection.classList.add('instagram-highlight');
+                setTimeout(() => {
+                    gameSection.classList.remove('instagram-highlight');
+                }, 2000);
+            }
+        }, 4000);
+        
+        // Add Instagram back button at bottom
+        const backButton = document.createElement('a');
+        backButton.href = 'instagram://';
+        backButton.classList.add('instagram-back-button');
+        backButton.textContent = 'Back to Instagram';
+        document.body.appendChild(backButton);
+    }
+}
+
+// Add this to your DOMContentLoaded event listener in scripts.js
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing initializations
+    initializeInstagramLanding();
+});
+

@@ -2338,3 +2338,236 @@ h2::after {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+/* Add these mobile-friendly CSS improvements to your styles.css file */
+
+/* Better mobile base styles */
+@media (max-width: 768px) {
+    header {
+        padding: 1rem 0.5rem;
+    }
+    
+    .logo {
+        font-size: 2rem;
+    }
+    
+    .caption {
+        font-size: 0.8rem;
+    }
+    
+    main {
+        padding: 0 0.5rem;
+    }
+    
+    h2 {
+        font-size: 1.8rem;
+    }
+    
+    section {
+        margin: 3rem 0;
+    }
+    
+    .about-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .avatar-container {
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .about-text p {
+        font-size: 0.95rem;
+    }
+    
+    .project, .medium-article, .music-player, .ai-image-card {
+        padding: 1rem;
+    }
+    
+    .music-player h3 {
+        font-size: 1rem;
+    }
+    
+    .music-description {
+        font-size: 0.8rem;
+    }
+    
+    /* Improved mobile menu */
+    nav.active ul {
+        padding: 4rem 1rem 2rem;
+        gap: 1.5rem;
+    }
+    
+    .mobile-menu-toggle {
+        display: block;
+        right: 1rem;
+        top: 1.5rem;
+        z-index: 102;
+    }
+    
+    /* Improved mobile game experience */
+    #game-area {
+        height: 350px;
+    }
+    
+    .game-container {
+        padding: 1rem;
+    }
+    
+    .rangers-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+    }
+    
+    .ranger {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .ranger-option p {
+        font-size: 0.8rem;
+    }
+    
+    .game-btn {
+        font-size: 0.9rem;
+        padding: 0.7rem 1.2rem;
+    }
+    
+    .game-score {
+        font-size: 1rem;
+    }
+    
+    /* Better touch targets */
+    .play-button, .filter-btn, #back-to-top, .ranger-option {
+        min-height: 44px;
+    }
+    
+    /* Improved mobile footer */
+    footer {
+        padding: 2rem 1rem 1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.7rem;
+    }
+    
+    .mobile-menu-toggle {
+        right: 0.5rem;
+    }
+    
+    .image-grid, #projects-container, .articles-grid, .music-grid, .quotes-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .glitch-text {
+        font-size: 2rem;
+    }
+    
+    .typewriter {
+        font-size: 0.9rem;
+    }
+    
+    .ranger {
+        width: 50px;
+        height: 50px;
+    }
+    
+    #game-area {
+        height: 300px;
+    }
+    
+    .player {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        padding: 1rem;
+    }
+    
+    .toast {
+        width: 90%;
+        right: 5%;
+    }
+}
+
+/* Optimize initial load experience for mobile */
+.loading-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-dark);
+    z-index: 9999;
+}
+
+/* Fix viewport issues */
+@viewport {
+    width: device-width;
+    zoom: 1.0;
+}
+
+/* Improved touch interactions */
+a, button, .play-button, .ai-image-card, .project, .medium-article {
+    -webkit-tap-highlight-color: transparent;
+}
+
+button, [role="button"] {
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+/* Prevent text size adjustment on orientation change */
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent form zooming on iOS */
+input, select, textarea {
+    font-size: 16px;
+}
+
+/* Mobile-friendly scrolling */
+html, body {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.instagram-visitor .intro-content {
+    padding-bottom: 2rem;
+}
+
+.instagram-highlight {
+    animation: pulse 2s;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
+}
+
+.instagram-back-button {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #E1306C;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    font-family: 'Fira Code', monospace;
+}
