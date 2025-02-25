@@ -480,9 +480,9 @@ function initializeThemeToggle() {
     }
 }
 
-// Replace the initializeMusicPlayers function in your scripts.js file
 
-// Initialize music players
+
+// Improved music player functionality
 function initializeMusicPlayers() {
     const playButtons = document.querySelectorAll('.play-button');
     let currentAudio = null;
@@ -491,29 +491,39 @@ function initializeMusicPlayers() {
         button.addEventListener('click', () => {
             const trackSrc = button.getAttribute('data-track');
             
-            // If there's already an audio playing, pause it
+            // If there's already an audio playing
             if (currentAudio) {
-                currentAudio.pause();
-                const previousButton = document.querySelector(`.play-button[data-track="${currentAudio.src.split('/').pop()}"]`);
-                if (previousButton) {
-                    previousButton.classList.remove('playing');
+                // If clicking the same button that's currently playing
+                if (currentAudio.src.includes(trackSrc) && !currentAudio.paused) {
+                    currentAudio.pause();
+                    button.classList.remove('playing');
+                    return;
+                } 
+                // If clicking a different button
+                else {
+                    currentAudio.pause();
+                    const previousButton = document.querySelector(`.play-button.playing`);
+                    if (previousButton) {
+                        previousButton.classList.remove('playing');
+                    }
                 }
             }
             
-            // If the clicked button was already playing, just pause it and exit function
-            if (currentAudio && currentAudio.src.includes(trackSrc) && !currentAudio.paused) {
-                button.classList.remove('playing');
-                currentAudio = null;
+            // If the current track is already created but paused, play it
+            if (currentAudio && currentAudio.src.includes(trackSrc) && currentAudio.paused) {
+                currentAudio.play();
+                button.classList.add('playing');
                 return;
             }
             
-            // Create a new audio element
+            // Create a new audio element for a new track
             const audio = new Audio(trackSrc);
             currentAudio = audio;
             
             // Update button state
             button.classList.add('playing');
             
+            // Rest of your function remains the same...
             // Get progress bar and time elements
             const progressBar = button.parentElement.querySelector('.progress');
             const currentTimeDisplay = button.parentElement.querySelector('.current-time');
@@ -521,22 +531,13 @@ function initializeMusicPlayers() {
             
             // Initialize audio visualizer
             const visualizerCanvas = button.closest('.music-player').querySelector('.visualizer');
-            if (visualizerCanvas) {
-                initializeVisualizer(audio, visualizerCanvas);
-            }
+            initializeVisualizer(audio, visualizerCanvas);
             
             // Play the audio
-            audio.play()
-                .catch(error => {
-                    console.error("Error playing audio:", error);
-                    button.classList.remove('playing');
-                    currentAudio = null;
-                });
+            audio.play();
             
             // Update progress bar and time displays
             audio.addEventListener('timeupdate', () => {
-                if (!progressBar || !currentTimeDisplay) return;
-                
                 const progress = (audio.currentTime / audio.duration) * 100;
                 progressBar.style.width = `${progress}%`;
                 
@@ -548,8 +549,6 @@ function initializeMusicPlayers() {
             
             // Set total time once metadata is loaded
             audio.addEventListener('loadedmetadata', () => {
-                if (!totalTimeDisplay) return;
-                
                 const totalMinutes = Math.floor(audio.duration / 60);
                 const totalSeconds = Math.floor(audio.duration % 60);
                 totalTimeDisplay.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
@@ -558,19 +557,9 @@ function initializeMusicPlayers() {
             // Reset when finished
             audio.addEventListener('ended', () => {
                 button.classList.remove('playing');
-                if (progressBar) progressBar.style.width = '0%';
+                progressBar.style.width = '0%';
                 currentAudio = null;
             });
-            
-            // Allow clicking on progress bar to seek
-            const progressContainer = button.parentElement.querySelector('.progress-bar');
-            if (progressContainer) {
-                progressContainer.addEventListener('click', (e) => {
-                    const rect = progressContainer.getBoundingClientRect();
-                    const clickPosition = (e.clientX - rect.left) / rect.width;
-                    audio.currentTime = clickPosition * audio.duration;
-                });
-            }
         });
     });
 }
@@ -1303,5 +1292,124 @@ function initializeInstagramLanding() {
 document.addEventListener('DOMContentLoaded', function() {
     // ... your existing initializations
     initializeInstagramLanding();
+});
+
+// Add this to your scripts.js file
+function initializeGrumpyCatChatbot() {
+    const chatMessages = document.getElementById('chat-messages');
+    const userMessageInput = document.getElementById('user-message');
+    const sendButton = document.getElementById('send-message');
+    
+    // Arrogant cat responses
+    const catResponses = [
+        "Do I look like I care? Because I don't.",
+        "Wow, that's so interesting... said no cat ever.",
+        "I was having a great nap until you decided to talk.",
+        "The audacity of humans never ceases to amaze me.",
+        "Let me check my schedule... nope, don't care.",
+        "I would answer, but I'm busy ignoring you.",
+        "Is this conversation really necessary?",
+        "Humans and their silly questions...",
+        "That deserves a solid 'meh' from me.",
+        "I'd rather be licking my fur than answering that.",
+        "Your question is almost as interesting as watching paint dry.",
+        "Oh look, a human wanting attention. How unique.",
+        "That's nice. Anyway, where's my food?",
+        "The only thing I care about is when dinner is served.",
+        "I'm going to pretend you didn't say that.",
+        "Fascinating story. Tell it to someone who cares.",
+        "I just remembered I don't have to listen to this.",
+        "Excuse me while I completely disregard what you just said.",
+        "Are you still talking? I stopped listening ages ago.",
+        "That's a very human thing to say. Boring."
+    ];
+    
+    // Questions the cat might recognize
+    const specialResponses = {
+        "who are you": "I'm Mittens, the most superior cat in existence. Not that you needed to know.",
+        "what's your name": "Mittens. Remember it, because I won't answer to anything else.",
+        "hello": "Oh great, you know basic greetings. Want a treat?",
+        "hi": "Yes, hello, whatever. Are you here to serve me or just waste my time?",
+        "food": "Finally, a topic worth discussing. Where is it?",
+        "treat": "Now you're speaking my language. Hand it over and no one gets scratched.",
+        "pet": "You may touch me for exactly 2.5 pets. Any more and I attack.",
+        "love": "That's a strong word. I tolerate you at best.",
+        "sorry": "As you should be. I may forgive you in 3-5 business days.",
+        "cat": "Yes, I'm a cat. Your observational skills are truly remarkable.",
+        "dog": "Don't mention those slobbering beasts in my presence."
+    };
+    
+    // Function to add message to chat
+    function addMessage(text, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(isUser ? 'user' : 'bot');
+        
+        const messagePara = document.createElement('p');
+        messagePara.textContent = text;
+        
+        messageDiv.appendChild(messagePara);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Function to get cat response
+    function getCatResponse(userMessage) {
+        const lowercaseMessage = userMessage.toLowerCase();
+        
+        // Check for special responses
+        for (const [key, value] of Object.entries(specialResponses)) {
+            if (lowercaseMessage.includes(key)) {
+                return value;
+            }
+        }
+        
+        // If no special response matches, return random response
+        return catResponses[Math.floor(Math.random() * catResponses.length)];
+    }
+    
+    // Handle send button click
+    function handleSend() {
+        const userMessage = userMessageInput.value.trim();
+        
+        if (userMessage) {
+            // Add user message
+            addMessage(userMessage, true);
+            
+            // Clear input
+            userMessageInput.value = '';
+            
+            // Get and add cat response after a short delay
+            setTimeout(() => {
+                const botResponse = getCatResponse(userMessage);
+                addMessage(botResponse);
+            }, 500 + Math.random() * 1000); // Random delay between 500ms and 1500ms
+        }
+    }
+    
+    // Event listeners
+    sendButton.addEventListener('click', handleSend);
+    
+    userMessageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSend();
+        }
+    });
+    
+    // Add to navigation menu
+    const navList = document.querySelector('nav ul');
+    if (navList) {
+        const chatLink = document.createElement('li');
+        chatLink.innerHTML = '<a href="#chatbot">Chat</a>';
+        navList.appendChild(chatLink);
+    }
+}
+
+// Add this to your DOMContentLoaded event handler
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing initializations
+    initializeGrumpyCatChatbot();
 });
 
