@@ -41,8 +41,8 @@
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#articles">Articles</a></li>
                 <li><a href="#music">Music</a></li>
+                <li><a href="#images">AI Images</a></li>
                 <li><a href="#raw">Raw</a></li>
-                <li><a href="#contact" class="contact-button">Contact</a></li>
                 <li><button class="theme-toggle" aria-label="Toggle dark/light mode">
                     <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="intro-buttons">
                         <a href="#about" class="btn primary-btn">Learn More</a>
-                        <a href="#contact" class="btn secondary-btn">Get in Touch</a>
+                        <a href="https://github.com/arun3676" class="btn secondary-btn">GitHub</a>
                     </div>
                 </div>
             </div>
@@ -244,32 +244,17 @@
                     </div>
                 </div>
             </div>
-            <div class="view-more-container">
-                <a href="#" class="view-more-btn" id="generate-ai-music">Generate Your Own AI Music</a>
-            </div>
-            <div id="ai-music-generator" class="hidden">
-                <h3>AI Music Generator</h3>
-                <div class="music-generator-form">
-                    <div class="form-group">
-                        <label for="music-prompt">Describe your music:</label>
-                        <textarea id="music-prompt" placeholder="E.g., A futuristic cyberpunk track with heavy bass and glitchy rhythms"></textarea>
+        </section>
+
+        <section id="images">
+            <h2>AI Generated Images</h2>
+            <div class="image-grid" id="ai-images-container">
+                <!-- AI Images will be loaded here -->
+                <div class="image-loading">
+                    <div class="image-loading-animation">
+                        <span></span><span></span><span></span>
                     </div>
-                    <div class="form-group">
-                        <label>Music style:</label>
-                        <div class="style-options">
-                            <button class="style-btn" data-style="electronic">Electronic</button>
-                            <button class="style-btn" data-style="ambient">Ambient</button>
-                            <button class="style-btn" data-style="lofi">Lo-Fi</button>
-                            <button class="style-btn" data-style="classical">Classical</button>
-                        </div>
-                    </div>
-                    <button id="generate-button" class="generate-music-btn">Generate Music</button>
-                    <div class="generation-status hidden">
-                        <p>Generating your unique AI music...</p>
-                        <div class="generator-progress">
-                            <div class="generator-progress-bar"></div>
-                        </div>
-                    </div>
+                    <p>Loading images...</p>
                 </div>
             </div>
         </section>
@@ -302,73 +287,6 @@
                     <cite>- Thomas Shelby</cite>
                 </blockquote>
             </div>
-            <div class="thought-submission">
-                <h3>Share Your Raw Thought</h3>
-                <div class="thought-form">
-                    <textarea id="thought-input" placeholder="Share a quote or thought that inspires you..."></textarea>
-                    <input type="text" id="thought-author" placeholder="Author/Source">
-                    <button id="submit-thought">Submit</button>
-                </div>
-            </div>
-        </section>
-
-        <section id="contact">
-            <h2>Get In Touch</h2>
-            <div class="contact-container">
-                <div class="contact-info">
-                    <h3>Let's Connect</h3>
-                    <p>Have a project idea? Want to collaborate? Or just say hello? I'd love to hear from you.</p>
-                    <div class="social-links">
-                        <a href="https://github.com/arun3676" target="_blank" class="social-link github">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                            </svg>
-                            <span>GitHub</span>
-                        </a>
-                        <a href="https://medium.com/@arunn9694" target="_blank" class="social-link medium">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18 41.578v-.938c0-.656-.313-.969-.969-.969h-3.750V14.891h18.281v24.780h-3.750c-.656 0-.938.313-.938.97v.937h-8.874zM12 10.734q0-1.921 1.336-3.257t3.257-1.336 3.257 1.336 1.336 3.257-1.336 3.257-3.257 1.336-3.257-1.336-1.336-3.257zM39.844 41.578v-.938c0-.656-.313-.969-.969-.969h-3.750V14.891h18.281v24.780h-3.750c-.656 0-.938.313-.938.97v.937h-8.874zM33.75 10.734q0-1.921 1.336-3.257t3.257-1.336 3.257 1.336 1.336 3.257-1.336 3.257-3.257 1.336-3.257-1.336-1.336-3.257zM9.375 41.578v-.938c0-.656-.313-.969-.969-.969H4.687c-.688 0-1-.344-1-.938V15.828c0-.656.313-.937.969-.937h4.688v-3.75c0-.688.312-1 .937-1h4.688c.625 0 .937.313.937 1v3.75h4.688c.625 0 .937.28.937.937v23.845c0 .594-.313.938-.938.938h-4.687c-.656 0-.969.313-.969.97v.937H9.375z"></path>
-                            </svg>
-                            <span>Medium</span>
-                        </a>
-                        <a href="https://linkedin.com/" target="_blank" class="social-link linkedin">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                                <rect x="2" y="9" width="4" height="12"></rect>
-                                <circle cx="4" cy="4" r="2"></circle>
-                            </svg>
-                            <span>LinkedIn</span>
-                        </a>
-                        <a href="https://twitter.com/" target="_blank" class="social-link twitter">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
-                            </svg>
-                            <span>Twitter</span>
-                        </a>
-                    </div>
-                </div>
-                <div class="contact-form">
-                    <form id="contact-form">
-                        <div class="form-group">
-                            <label for="name">Name</label>
-                            <input type="text" id="name" name="name" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="subject">Subject</label>
-                            <input type="text" id="subject" name="subject" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" required></textarea>
-                        </div>
-                        <button type="submit" class="submit-btn">Send Message</button>
-                    </form>
-                </div>
-            </div>
         </section>
     </main>
 
@@ -386,6 +304,7 @@
                         <li><a href="#projects">Projects</a></li>
                         <li><a href="#articles">Articles</a></li>
                         <li><a href="#music">Music</a></li>
+                        <li><a href="#images">AI Images</a></li>
                         <li><a href="#raw">Raw</a></li>
                     </ul>
                 </div>
@@ -402,11 +321,6 @@
         </div>
         <div class="footer-bottom">
             <p>© 2025 Arun.ai • All rights reserved</p>
-            <div class="footer-info">
-                <a href="#">Privacy Policy</a>
-                <span class="footer-divider">|</span>
-                <a href="#">Terms of Service</a>
-            </div>
         </div>
     </footer>
 
@@ -420,44 +334,15 @@
         </div>
     </div>
 
-    <div class="modal" id="ai-music-modal">
-        <div class="modal-content">
+    <div class="modal" id="image-modal">
+        <div class="modal-content image-modal-content">
             <span class="close-modal">&times;</span>
-            <div class="music-result">
-                <h3>Your AI-Generated Music</h3>
-                <div class="generated-player">
-                    <div class="visualizer-container">
-                        <canvas class="generated-visualizer"></canvas>
-                    </div>
-                    <div class="player-controls">
-                        <button class="play-generated-button">
-                            <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                            <svg class="pause-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="6" y="4" width="4" height="16"></rect>
-                                <rect x="14" y="4" width="4" height="16"></rect>
-                            </svg>
-                        </button>
-                        <div class="progress-container">
-                            <div class="progress-bar">
-                                <div class="progress"></div>
-                            </div>
-                            <div class="time-display">
-                                <span class="current-time">0:00</span> / <span class="total-time">0:00</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="download-section">
-                    <button class="download-btn">Download Your Track</button>
-                    <p class="music-note">Note: This is a simulated demo. In a real implementation, this would connect to an AI music generation API.</p>
-                </div>
-            </div>
+            <img id="modal-image" src="" alt="AI Generated Image">
+            <div class="image-caption"></div>
         </div>
     </div>
 
-    <!-- Notification toast -->
+    <!-- Toast notification -->
     <div class="toast" id="toast">
         <div class="toast-content">
             <svg class="toast-icon success" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -482,5 +367,13 @@
     </button>
 
     <script src="scripts.js"></script>
+
+    <div class="modal" id="image-modal">
+        <div class="modal-content image-modal-content">
+            <span class="close-modal">&times;</span>
+            <img id="modal-image" src="" alt="AI Generated Image">
+            <div class="image-caption"></div>
+        </div>
+    </div> 
 </body>
 </html>

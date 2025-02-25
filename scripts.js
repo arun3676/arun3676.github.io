@@ -8,9 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchGitHubProjects();
     initializeThemeToggle();
     initializeMusicPlayers();
-    initializeAIMusic();
-    initializeThoughtSubmission();
-    initializeContactForm();
+    loadAIImages();
     initializeModalClosers();
     initializeBackToTop();
     initializeProjectFilters();
@@ -613,121 +611,156 @@ function initializeVisualizer(audio, canvas) {
     draw();
 }
 
-// Initialize AI Music Generator
-function initializeAIMusic() {
-    const generateMusicBtn = document.getElementById('generate-ai-music');
-    const aiMusicGenerator = document.getElementById('ai-music-generator');
-    const generateButton = document.getElementById('generate-button');
-    const aiMusicModal = document.getElementById('ai-music-modal');
+// Load AI Images
+function loadAIImages() {
+    const imagesContainer = document.getElementById('ai-images-container');
+    if (!imagesContainer) return;
     
-    // Toggle the AI Music Generator section
-    if (generateMusicBtn && aiMusicGenerator) {
-        generateMusicBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            aiMusicGenerator.classList.toggle('hidden');
-            
-            // Scroll to the generator if it's now visible
-            if (!aiMusicGenerator.classList.contains('hidden')) {
-                aiMusicGenerator.scrollIntoView({ behavior: 'smooth' });
-            }
-        });
+    // Array of image names you have in your repository
+    // Updated with your actual image filenames
+    const aiImages = [
+        { src: 'images/black%20cat.jpeg', caption: 'Black Cat', type: 'image' },
+        { src: 'images/cat%20in%20cybber%20punk.png', caption: 'Cat in Cyberpunk', type: 'image' },
+        { src: 'images/cat%20rockstar%20video.mp4', caption: 'Cat Rockstar', type: 'video' },
+        { src: 'images/darkplace.jpeg', caption: 'Dark Place', type: 'image' },
+        { src: 'images/nature%20home.jpeg', caption: 'Nature Home', type: 'image' }
+    ];
+    
+    // Remove loading indicator
+    const loadingElement = imagesContainer.querySelector('.image-loading');
+    if (loadingElement) {
+        imagesContainer.removeChild(loadingElement);
     }
     
-    // Music style buttons
-    const styleButtons = document.querySelectorAll('.style-btn');
-    styleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            styleButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-        });
-    });
-    
-    // Handle generate button click
-    if (generateButton && aiMusicModal) {
-        generateButton.addEventListener('click', () => {
-            const musicPrompt = document.getElementById('music-prompt').value;
-            const selectedStyle = document.querySelector('.style-btn.active');
-            
-            if (!musicPrompt) {
-                showToast('Please describe the music you want to generate', 'error');
-                return;
-            }
-            
-            // Show generation status
-            const generationStatus = document.querySelector('.generation-status');
-            generationStatus.classList.remove('hidden');
-            
-            // Simulate generation process (in a real app, this would call an API)
-            setTimeout(() => {
-                generationStatus.classList.add('hidden');
-                
-                // Show the AI music modal
-                aiMusicModal.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-                
-                // Initialize the generated music visualizer
-                const canvas = aiMusicModal.querySelector('.generated-visualizer');
-                simulateVisualizer(canvas);
-                
-                // Create a dummy audio for demo purposes
-                const dummyAudio = new Audio('audio/Maa Meri.mp3'); // Reuse existing audio for demo
-                
-                // Play button functionality
-                const playButton = aiMusicModal.querySelector('.play-generated-button');
-                playButton.addEventListener('click', () => {
-                    if (dummyAudio.paused) {
-                        dummyAudio.play();
-                        playButton.classList.add('playing');
-                    } else {
-                        dummyAudio.pause();
-                        playButton.classList.remove('playing');
-                    }
-                });
-                
-                // Download button functionality
-                const downloadButton = aiMusicModal.querySelector('.download-btn');
-                downloadButton.addEventListener('click', () => {
-                    showToast('Demo: Music download started');
-                });
-            }, 3000);
-        });
-    }
-}
-
-// Simulate audio visualizer without actual audio
-function simulateVisualizer(canvas) {
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
-    
-    const bars = 60;
-    const barWidth = canvas.width / bars;
-    
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Add images to the container
+    aiImages.forEach(item => {
+        const imageCard = document.createElement('div');
+        imageCard.classList.add('ai-image-card');
         
-        for (let i = 0; i < bars; i++) {
-            // Generate random heights for a more dynamic effect
-            const height = Math.random() * canvas.height * 0.8;
+        if (item.type === 'video') {
+            imageCard.classList.add('video-card');
+            imageCard.innerHTML = `
+                <div class="video-container">
+                    <video src="${item.src}" class="ai-video" muted loop></video>
+                    <div class="ai-image-overlay">
+                        <p>${item.caption}</p>
+                    </div>
+                </div>
+            `;
             
-            // Use a gradient for visualization
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#0f0');
-            gradient.addColorStop(0.5, '#0ff');
-            gradient.addColorStop(1, '#00f');
+            // Add hover effect to play/pause video
+            const video = imageCard.querySelector('video');
+            imageCard.addEventListener('mouseenter', () => {
+                video.play();
+            });
             
-            ctx.fillStyle = gradient;
-            ctx.fillRect(i * barWidth, canvas.height - height, barWidth - 1, height);
+            imageCard.addEventListener('mouseleave', () => {
+                video.pause();
+            });
+            
+            // Add click event to open modal
+            imageCard.addEventListener('click', () => {
+                openVideoModal(item.src, item.caption);
+            });
+        } else {
+            imageCard.innerHTML = `
+                <div class="ai-image-container">
+                    <img src="${item.src}" alt="${item.caption}" class="ai-image">
+                    <div class="ai-image-overlay">
+                        <p>${item.caption}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Add click event to open modal
+            imageCard.addEventListener('click', () => {
+                openImageModal(item.src, item.caption);
+            });
         }
         
-        requestAnimationFrame(draw);
+        imagesContainer.appendChild(imageCard);
+    });
+}
+
+// Open image modal
+function openImageModal(src, caption) {
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    const captionElement = modal.querySelector('.image-caption');
+    
+    modalImage.src = src;
+    captionElement.textContent = caption;
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+}
+
+// Open video modal
+function openVideoModal(src, caption) {
+    const modal = document.getElementById('image-modal');
+    const modalContent = modal.querySelector('.image-modal-content');
+    const captionElement = modal.querySelector('.image-caption');
+    
+    // Replace image with video
+    modalContent.innerHTML = `
+        <span class="close-modal">&times;</span>
+        <video id="modal-video" controls autoplay>
+            <source src="${src}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="image-caption">${caption}</div>
+    `;
+    
+    // Reinitialize close button
+    const closeButton = modalContent.querySelector('.close-modal');
+    closeButton.addEventListener('click', () => {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    });
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+}
+    // Remove loading indicator
+    const loadingElement = imagesContainer.querySelector('.image-loading');
+    if (loadingElement) {
+        imagesContainer.removeChild(loadingElement);
     }
     
-    draw();
+    // Add images to the container
+    aiImages.forEach(image => {
+        const imageCard = document.createElement('div');
+        imageCard.classList.add('ai-image-card');
+        
+        imageCard.innerHTML = `
+            <div class="ai-image-container">
+                <img src="${image.src}" alt="${image.caption}" class="ai-image">
+                <div class="ai-image-overlay">
+                    <p>${image.caption}</p>
+                </div>
+            </div>
+        `;
+        
+        imagesContainer.appendChild(imageCard);
+        
+        // Add click event to open modal
+        imageCard.addEventListener('click', () => {
+            openImageModal(image.src, image.caption);
+        });
+    });
+
+
+// Open image modal
+function openImageModal(src, caption) {
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    const captionElement = modal.querySelector('.image-caption');
+    
+    modalImage.src = src;
+    captionElement.textContent = caption;
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
 }
 
 // Initialize avatar matrix effect
@@ -792,82 +825,6 @@ function initializeAvatarMatrix() {
     }
     
     drawAvatar();
-}
-
-// Initialize thought submission
-function initializeThoughtSubmission() {
-    const thoughtForm = document.querySelector('.thought-form');
-    const thoughtInput = document.getElementById('thought-input');
-    const thoughtAuthor = document.getElementById('thought-author');
-    const submitButton = document.getElementById('submit-thought');
-    
-    if (thoughtForm && submitButton) {
-        submitButton.addEventListener('click', () => {
-            const thought = thoughtInput.value.trim();
-            const author = thoughtAuthor.value.trim() || 'Anonymous';
-            
-            if (!thought) {
-                showToast('Please enter a thought to share', 'error');
-                return;
-            }
-            
-            // In a real app, this would submit to a backend
-            // For the demo, add the thought to the quotes container
-            const quotesContainer = document.querySelector('.quotes-container');
-            
-            const newQuote = document.createElement('blockquote');
-            newQuote.innerHTML = `
-                <p>"${thought}"</p>
-                <cite>- ${author}</cite>
-            `;
-            
-            // Add animation class
-            newQuote.classList.add('new-quote');
-            
-            // Add to the container
-            quotesContainer.prepend(newQuote);
-            
-            // Clear form
-            thoughtInput.value = '';
-            thoughtAuthor.value = '';
-            
-            // Show success message
-            showToast('Your thought has been shared!');
-            
-            // Scroll to the new quote
-            newQuote.scrollIntoView({ behavior: 'smooth' });
-        });
-    }
-}
-
-// Initialize contact form
-function initializeContactForm() {
-    const contactForm = document.getElementById('contact-form');
-    
-    if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            // Get form values
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const subject = document.getElementById('subject').value;
-            const message = document.getElementById('message').value;
-            
-            // Validate form (simple validation)
-            if (!name || !email || !subject || !message) {
-                showToast('Please fill in all fields', 'error');
-                return;
-            }
-            
-            // In a real app, this would submit to a backend
-            // For the demo, just show a success message
-            showToast('Message sent successfully! I\'ll get back to you soon.');
-            
-            // Clear form
-            contactForm.reset();
-        });
-    }
 }
 
 // Initialize modal closers
