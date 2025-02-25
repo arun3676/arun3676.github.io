@@ -3,63 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arun • Developer</title>
+    <title>arun.ai | AI & Software Developer</title>
+    <meta name="description" content="Arun's personal website - AI Developer, Software Engineer, and Martian waiting for AGI">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- Open Graph Meta Tags for better sharing -->
+    <meta property="og:title" content="arun.ai | AI & Software Developer">
+    <meta property="og:description" content="Arun's personal website - AI Developer, Software Engineer, and Martian waiting for AGI">
+    <meta property="og:url" content="https://arun.ai">
+    <meta property="og:type" content="website">
 </head>
 <body>
     <div id="matrix-background"></div>
+    <div class="loading-screen">
+        <div class="terminal">
+            <p class="terminal-text">Initializing arun.ai</p>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+        </div>
+    </div>
     
     <header>
-        <h1>ARUN</h1>
-        <p class="caption">Martian waiting for AGI</p>
+        <div class="logo-container">
+            <h1><a href="/" class="logo">ARUN.AI</a></h1>
+            <p class="caption">Martian waiting for AGI</p>
+        </div>
         <nav>
+            <div class="mobile-menu-toggle" aria-label="Toggle navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
             <ul>
+                <li><a href="#about">About</a></li>
                 <li><a href="#projects">Projects</a></li>
                 <li><a href="#articles">Articles</a></li>
                 <li><a href="#music">Music</a></li>
                 <li><a href="#raw">Raw</a></li>
+                <li><a href="#contact" class="contact-button">Contact</a></li>
+                <li><button class="theme-toggle" aria-label="Toggle dark/light mode">
+                    <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button></li>
             </ul>
         </nav>
     </header>
 
     <main>
         <section id="intro">
-            <div class="song-quote">
-                "One step forward and two steps back, still got a lot to learn that's a fact"
+            <div class="intro-content">
+                <div class="intro-text">
+                    <h2 class="glitch-text" data-text="Hello, World!">Hello, World!</h2>
+                    <div class="typewriter">
+                        <span id="typewriter-text"></span>
+                        <span class="cursor">|</span>
+                    </div>
+                    <div class="intro-buttons">
+                        <a href="#about" class="btn primary-btn">Learn More</a>
+                        <a href="#contact" class="btn secondary-btn">Get in Touch</a>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll Down</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </div>
+        </section>
+
+        <section id="about">
+            <h2>About Me</h2>
+            <div class="about-container">
+                <div class="about-image">
+                    <div class="avatar-container">
+                        <div class="avatar-matrix"></div>
+                    </div>
+                </div>
+                <div class="about-text">
+                    <p>I'm a software engineer and AI enthusiast with a passion for building innovative solutions that bridge technology and creativity.</p>
+                    <p>Currently focusing on AI development, machine learning, and data analysis, I'm constantly exploring the frontiers of what's possible with emerging technologies.</p>
+                    <p>My background spans full-stack development, data science, and creative coding – all united by my curiosity about the future of human-machine collaboration.</p>
+                    <div class="skills">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">JavaScript</span>
+                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">Machine Learning</span>
+                        <span class="skill-tag">LLMs</span>
+                        <span class="skill-tag">Data Analysis</span>
+                    </div>
+                    <div class="song-quote">
+                        "One step forward and two steps back, still got a lot to learn that's a fact"
+                    </div>
+                </div>
             </div>
         </section>
 
         <section id="projects">
             <h2>Projects</h2>
+            <div class="filter-tabs">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="ai">AI</button>
+                <button class="filter-btn" data-filter="web">Web</button>
+                <button class="filter-btn" data-filter="data">Data</button>
+            </div>
             <div id="projects-container">
                 <!-- Projects will be loaded dynamically -->
+                <div class="project-loading">
+                    <div class="project-loading-animation">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <p>Loading projects...</p>
+                </div>
+            </div>
+            <div class="view-more-container">
+                <a href="https://github.com/arun3676" target="_blank" class="view-more-btn">View All Projects on GitHub</a>
             </div>
         </section>
 
         <section id="articles">
             <h2>Featured Articles</h2>
             <div class="articles-grid">
-                <article class="medium-article">
-                    <h3>Building an AI-Powered Learning Path Generator</h3>
-                    <p>A deep dive into RAG and LLMs</p>
-                    <a href="https://medium.com/@arunn9694/building-an-ai-powered-learning-path-generator-a-deep-dive-into-rag-and-llms-d8e0eb080ccb" target="_blank" class="read-more">Read Article</a>
+                <article class="medium-article" data-category="ai">
+                    <div class="article-image">
+                        <div class="image-placeholder ai"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3>Building an AI-Powered Learning Path Generator</h3>
+                        <p>A deep dive into RAG and LLMs</p>
+                        <a href="https://medium.com/@arunn9694/building-an-ai-powered-learning-path-generator-a-deep-dive-into-rag-and-llms-d8e0eb080ccb" target="_blank" class="read-more">Read Article</a>
+                    </div>
                 </article>
-                <article class="medium-article">
-                    <h3>Exploring Microsoft Excel Copilot</h3>
-                    <p>My journey in data analysis with EV charging data</p>
-                    <a href="https://medium.com/@arunn9694/exploring-microsoft-excel-copilot-my-journey-in-data-analysis-with-ev-charging-data-f33ca6ff7d03" target="_blank" class="read-more">Read Article</a>
+                <article class="medium-article" data-category="data">
+                    <div class="article-image">
+                        <div class="image-placeholder data"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3>Exploring Microsoft Excel Copilot</h3>
+                        <p>My journey in data analysis with EV charging data</p>
+                        <a href="https://medium.com/@arunn9694/exploring-microsoft-excel-copilot-my-journey-in-data-analysis-with-ev-charging-data-f33ca6ff7d03" target="_blank" class="read-more">Read Article</a>
+                    </div>
                 </article>
-                <article class="medium-article">
-                    <h3>How LLMs are Transforming Data Analysis</h3>
-                    <p>A deep dive into the Titanic dataset</p>
-                    <a href="https://medium.com/@arunn9694/%EF%B8%8F-how-llms-are-transforming-data-analysis-a-deep-dive-into-the-titanic-dataset-f163a31835b2" target="_blank" class="read-more">Read Article</a>
+                <article class="medium-article" data-category="ai">
+                    <div class="article-image">
+                        <div class="image-placeholder ai"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3>How LLMs are Transforming Data Analysis</h3>
+                        <p>A deep dive into the Titanic dataset</p>
+                        <a href="https://medium.com/@arunn9694/%EF%B8%8F-how-llms-are-transforming-data-analysis-a-deep-dive-into-the-titanic-dataset-f163a31835b2" target="_blank" class="read-more">Read Article</a>
+                    </div>
                 </article>
-                <article class="medium-article">
-                    <h3>AI in the Workplace</h3>
-                    <p>A data analyst's perspective on harnessing AI for enhanced insights</p>
-                    <a href="https://medium.com/@arunn9694/ai-in-the-workplace-a-data-analysts-perspective-harnessing-the-power-of-ai-for-enhanced-insights-381f97f3eeea" target="_blank" class="read-more">Read Article</a>
+                <article class="medium-article" data-category="ai">
+                    <div class="article-image">
+                        <div class="image-placeholder data"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3>AI in the Workplace</h3>
+                        <p>A data analyst's perspective on harnessing AI for enhanced insights</p>
+                        <a href="https://medium.com/@arunn9694/ai-in-the-workplace-a-data-analysts-perspective-harnessing-the-power-of-ai-for-enhanced-insights-381f97f3eeea" target="_blank" class="read-more">Read Article</a>
+                    </div>
                 </article>
+            </div>
+            <div class="view-more-container">
+                <a href="https://medium.com/@arunn9694" target="_blank" class="view-more-btn">Read More on Medium</a>
             </div>
         </section>
 
@@ -67,18 +188,88 @@
             <h2>AI Music</h2>
             <div class="music-grid">
                 <div class="music-player">
+                    <div class="album-art">
+                        <div class="visualizer-container">
+                            <canvas class="visualizer" data-track="Maa Meri.mp3"></canvas>
+                        </div>
+                    </div>
                     <h3>Maa Meri</h3>
-                    <audio controls>
-                        <source src="audio/Maa Meri.mp3" type="audio/mp3">
-                        Your browser does not support the audio element.
-                    </audio>
+                    <p class="music-description">AI-generated composition inspired by classical Indian music</p>
+                    <div class="player-controls">
+                        <button class="play-button" data-track="audio/Maa Meri.mp3">
+                            <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg class="pause-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="6" y="4" width="4" height="16"></rect>
+                                <rect x="14" y="4" width="4" height="16"></rect>
+                            </svg>
+                        </button>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress"></div>
+                            </div>
+                            <div class="time-display">
+                                <span class="current-time">0:00</span> / <span class="total-time">0:00</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="music-player">
+                    <div class="album-art">
+                        <div class="visualizer-container">
+                            <canvas class="visualizer" data-track="Only You.mp3"></canvas>
+                        </div>
+                    </div>
                     <h3>Only You</h3>
-                    <audio controls>
-                        <source src="audio/Only You.mp3" type="audio/mp3">
-                        Your browser does not support the audio element.
-                    </audio>
+                    <p class="music-description">Ambient electronic piece created with AI-assisted composition</p>
+                    <div class="player-controls">
+                        <button class="play-button" data-track="audio/Only You.mp3">
+                            <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg class="pause-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="6" y="4" width="4" height="16"></rect>
+                                <rect x="14" y="4" width="4" height="16"></rect>
+                            </svg>
+                        </button>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress"></div>
+                            </div>
+                            <div class="time-display">
+                                <span class="current-time">0:00</span> / <span class="total-time">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="view-more-container">
+                <a href="#" class="view-more-btn" id="generate-ai-music">Generate Your Own AI Music</a>
+            </div>
+            <div id="ai-music-generator" class="hidden">
+                <h3>AI Music Generator</h3>
+                <div class="music-generator-form">
+                    <div class="form-group">
+                        <label for="music-prompt">Describe your music:</label>
+                        <textarea id="music-prompt" placeholder="E.g., A futuristic cyberpunk track with heavy bass and glitchy rhythms"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Music style:</label>
+                        <div class="style-options">
+                            <button class="style-btn" data-style="electronic">Electronic</button>
+                            <button class="style-btn" data-style="ambient">Ambient</button>
+                            <button class="style-btn" data-style="lofi">Lo-Fi</button>
+                            <button class="style-btn" data-style="classical">Classical</button>
+                        </div>
+                    </div>
+                    <button id="generate-button" class="generate-music-btn">Generate Music</button>
+                    <div class="generation-status hidden">
+                        <p>Generating your unique AI music...</p>
+                        <div class="generator-progress">
+                            <div class="generator-progress-bar"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -111,12 +302,184 @@
                     <cite>- Thomas Shelby</cite>
                 </blockquote>
             </div>
+            <div class="thought-submission">
+                <h3>Share Your Raw Thought</h3>
+                <div class="thought-form">
+                    <textarea id="thought-input" placeholder="Share a quote or thought that inspires you..."></textarea>
+                    <input type="text" id="thought-author" placeholder="Author/Source">
+                    <button id="submit-thought">Submit</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <h2>Get In Touch</h2>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h3>Let's Connect</h3>
+                    <p>Have a project idea? Want to collaborate? Or just say hello? I'd love to hear from you.</p>
+                    <div class="social-links">
+                        <a href="https://github.com/arun3676" target="_blank" class="social-link github">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                            </svg>
+                            <span>GitHub</span>
+                        </a>
+                        <a href="https://medium.com/@arunn9694" target="_blank" class="social-link medium">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 41.578v-.938c0-.656-.313-.969-.969-.969h-3.750V14.891h18.281v24.780h-3.750c-.656 0-.938.313-.938.97v.937h-8.874zM12 10.734q0-1.921 1.336-3.257t3.257-1.336 3.257 1.336 1.336 3.257-1.336 3.257-3.257 1.336-3.257-1.336-1.336-3.257zM39.844 41.578v-.938c0-.656-.313-.969-.969-.969h-3.750V14.891h18.281v24.780h-3.750c-.656 0-.938.313-.938.97v.937h-8.874zM33.75 10.734q0-1.921 1.336-3.257t3.257-1.336 3.257 1.336 1.336 3.257-1.336 3.257-3.257 1.336-3.257-1.336-1.336-3.257zM9.375 41.578v-.938c0-.656-.313-.969-.969-.969H4.687c-.688 0-1-.344-1-.938V15.828c0-.656.313-.937.969-.937h4.688v-3.75c0-.688.312-1 .937-1h4.688c.625 0 .937.313.937 1v3.75h4.688c.625 0 .937.28.937.937v23.845c0 .594-.313.938-.938.938h-4.687c-.656 0-.969.313-.969.97v.937H9.375z"></path>
+                            </svg>
+                            <span>Medium</span>
+                        </a>
+                        <a href="https://linkedin.com/" target="_blank" class="social-link linkedin">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                                <rect x="2" y="9" width="4" height="12"></rect>
+                                <circle cx="4" cy="4" r="2"></circle>
+                            </svg>
+                            <span>LinkedIn</span>
+                        </a>
+                        <a href="https://twitter.com/" target="_blank" class="social-link twitter">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                            </svg>
+                            <span>Twitter</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="contact-form">
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Send Message</button>
+                    </form>
+                </div>
+            </div>
         </section>
     </main>
 
     <footer>
-        <p>© 2025 Arun</p>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h3>ARUN.AI</h3>
+                <p>Martian waiting for AGI</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-section">
+                    <h4>Navigation</h4>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                        <li><a href="#articles">Articles</a></li>
+                        <li><a href="#music">Music</a></li>
+                        <li><a href="#raw">Raw</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://github.com/arun3676">GitHub</a></li>
+                        <li><a href="https://medium.com/@arunn9694">Medium</a></li>
+                        <li><a href="#">LinkedIn</a></li>
+                        <li><a href="#">Twitter</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Arun.ai • All rights reserved</p>
+            <div class="footer-info">
+                <a href="#">Privacy Policy</a>
+                <span class="footer-divider">|</span>
+                <a href="#">Terms of Service</a>
+            </div>
+        </div>
     </footer>
+
+    <!-- Modals -->
+    <div class="modal" id="project-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="project-details">
+                <!-- Project details will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="ai-music-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="music-result">
+                <h3>Your AI-Generated Music</h3>
+                <div class="generated-player">
+                    <div class="visualizer-container">
+                        <canvas class="generated-visualizer"></canvas>
+                    </div>
+                    <div class="player-controls">
+                        <button class="play-generated-button">
+                            <svg class="play-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg class="pause-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="6" y="4" width="4" height="16"></rect>
+                                <rect x="14" y="4" width="4" height="16"></rect>
+                            </svg>
+                        </button>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress"></div>
+                            </div>
+                            <div class="time-display">
+                                <span class="current-time">0:00</span> / <span class="total-time">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="download-section">
+                    <button class="download-btn">Download Your Track</button>
+                    <p class="music-note">Note: This is a simulated demo. In a real implementation, this would connect to an AI music generation API.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification toast -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <svg class="toast-icon success" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <svg class="toast-icon error" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <div class="toast-message"></div>
+        </div>
+        <div class="toast-progress"></div>
+    </div>
+
+    <!-- Back to top button -->
+    <button id="back-to-top" aria-label="Back to top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 15l-6-6-6 6"/>
+        </svg>
+    </button>
 
     <script src="scripts.js"></script>
 </body>
