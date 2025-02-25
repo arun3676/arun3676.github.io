@@ -616,14 +616,13 @@ function loadAIImages() {
     const imagesContainer = document.getElementById('ai-images-container');
     if (!imagesContainer) return;
     
-    // Array of image names you have in your repository
-    // Updated with your actual image filenames
+    // Updated with your exact filenames
     const aiImages = [
-        { src: 'images/black%20cat.jpeg', caption: 'Black Cat', type: 'image' },
-        { src: 'images/cat%20in%20cybber%20punk.png', caption: 'Cat in Cyberpunk', type: 'image' },
-        { src: 'images/cat%20rockstar%20video.mp4', caption: 'Cat Rockstar', type: 'video' },
+        { src: 'images/black cat.jpeg', caption: 'Black Cat', type: 'image' },
+        { src: 'images/cat in cybber punk.png', caption: 'Cat in Cyberpunk', type: 'image' },
+        { src: 'images/cat rockstar video.mp4', caption: 'Cat Rockstar', type: 'video' },
         { src: 'images/darkplace.jpeg', caption: 'Dark Place', type: 'image' },
-        { src: 'images/nature%20home.jpeg', caption: 'Nature Home', type: 'image' }
+        { src: 'images/nature home.jpeg', caption: 'Nature Home', type: 'image' }
     ];
     
     // Remove loading indicator
@@ -717,47 +716,6 @@ function openVideoModal(src, caption) {
         modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     });
-    
-    modal.style.display = 'block';
-    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
-}
-    // Remove loading indicator
-    const loadingElement = imagesContainer.querySelector('.image-loading');
-    if (loadingElement) {
-        imagesContainer.removeChild(loadingElement);
-    }
-    
-    // Add images to the container
-    aiImages.forEach(image => {
-        const imageCard = document.createElement('div');
-        imageCard.classList.add('ai-image-card');
-        
-        imageCard.innerHTML = `
-            <div class="ai-image-container">
-                <img src="${image.src}" alt="${image.caption}" class="ai-image">
-                <div class="ai-image-overlay">
-                    <p>${image.caption}</p>
-                </div>
-            </div>
-        `;
-        
-        imagesContainer.appendChild(imageCard);
-        
-        // Add click event to open modal
-        imageCard.addEventListener('click', () => {
-            openImageModal(image.src, image.caption);
-        });
-    });
-
-
-// Open image modal
-function openImageModal(src, caption) {
-    const modal = document.getElementById('image-modal');
-    const modalImage = document.getElementById('modal-image');
-    const captionElement = modal.querySelector('.image-caption');
-    
-    modalImage.src = src;
-    captionElement.textContent = caption;
     
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
