@@ -2571,3 +2571,55 @@ html, body {
     z-index: 1000;
     font-family: 'Fira Code', monospace;
 }
+/* Fix for navigation overflow on mobile */
+@media (max-width: 768px) {
+    header {
+        padding: 1rem 0.5rem;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    
+    nav {
+        width: 100%;
+    }
+    
+    .logo-container {
+        max-width: 50%;
+    }
+    
+    .logo {
+        font-size: 1.8rem;
+        white-space: nowrap;
+    }
+    
+    .caption {
+        font-size: 0.7rem;
+    }
+    
+    /* Ensure mobile menu toggle is always visible */
+    .mobile-menu-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 102;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .logo {
+        font-size: 1.5rem;
+    }
+    
+    .caption {
+        font-size: 0.6rem;
+    }
+}
+@media (max-width: 768px) {
+    /* Reduce animation intensity for better mobile performance */
+    #matrix-background canvas {
+        opacity: 0.7;
+    }
+}
