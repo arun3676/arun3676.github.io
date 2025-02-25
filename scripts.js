@@ -480,6 +480,8 @@ function initializeThemeToggle() {
     }
 }
 
+// Replace the initializeMusicPlayers function in your scripts.js file
+
 // Initialize music players
 function initializeMusicPlayers() {
     const playButtons = document.querySelectorAll('.play-button');
@@ -498,7 +500,7 @@ function initializeMusicPlayers() {
                 }
             }
             
-            // If the clicked button was already playing, just pause it
+            // If the clicked button was already playing, just pause it and exit function
             if (currentAudio && currentAudio.src.includes(trackSrc) && !currentAudio.paused) {
                 button.classList.remove('playing');
                 currentAudio = null;
@@ -519,13 +521,22 @@ function initializeMusicPlayers() {
             
             // Initialize audio visualizer
             const visualizerCanvas = button.closest('.music-player').querySelector('.visualizer');
-            initializeVisualizer(audio, visualizerCanvas);
+            if (visualizerCanvas) {
+                initializeVisualizer(audio, visualizerCanvas);
+            }
             
             // Play the audio
-            audio.play();
+            audio.play()
+                .catch(error => {
+                    console.error("Error playing audio:", error);
+                    button.classList.remove('playing');
+                    currentAudio = null;
+                });
             
             // Update progress bar and time displays
             audio.addEventListener('timeupdate', () => {
+                if (!progressBar || !currentTimeDisplay) return;
+                
                 const progress = (audio.currentTime / audio.duration) * 100;
                 progressBar.style.width = `${progress}%`;
                 
@@ -537,6 +548,8 @@ function initializeMusicPlayers() {
             
             // Set total time once metadata is loaded
             audio.addEventListener('loadedmetadata', () => {
+                if (!totalTimeDisplay) return;
+                
                 const totalMinutes = Math.floor(audio.duration / 60);
                 const totalSeconds = Math.floor(audio.duration % 60);
                 totalTimeDisplay.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
@@ -545,21 +558,22 @@ function initializeMusicPlayers() {
             // Reset when finished
             audio.addEventListener('ended', () => {
                 button.classList.remove('playing');
-                progressBar.style.width = '0%';
+                if (progressBar) progressBar.style.width = '0%';
                 currentAudio = null;
             });
             
             // Allow clicking on progress bar to seek
             const progressContainer = button.parentElement.querySelector('.progress-bar');
-            progressContainer.addEventListener('click', (e) => {
-                const rect = progressContainer.getBoundingClientRect();
-                const clickPosition = (e.clientX - rect.left) / rect.width;
-                audio.currentTime = clickPosition * audio.duration;
-            });
+            if (progressContainer) {
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const clickPosition = (e.clientX - rect.left) / rect.width;
+                    audio.currentTime = clickPosition * audio.duration;
+                });
+            }
         });
     });
 }
-
 // Initialize audio visualizer
 function initializeVisualizer(audio, canvas) {
     if (!canvas) return;
@@ -1246,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeInstagramLanding();
 });
 
-// Add this to your scripts.js file to create a better experience for Instagram visitors
+
 
 function initializeInstagramLanding() {
     // Check if visitor is coming from Instagram
