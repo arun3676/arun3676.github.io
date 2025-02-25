@@ -482,84 +482,99 @@ function initializeThemeToggle() {
 
 
 
-// Improved music player functionality
+// Complete rewrite of music player functionality
 function initializeMusicPlayers() {
     const playButtons = document.querySelectorAll('.play-button');
-    let currentAudio = null;
+    let activeAudio = null;
     
     playButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const trackSrc = button.getAttribute('data-track');
+        // Create a dedicated audio element for each button
+        const trackSrc = button.getAttribute('data-track');
+        const audio = new Audio(trackSrc);
+        
+        // Store the audio element directly on the button
+        button.audioElement = audio;
+        
+        // Set up progress and time elements
+        const playerControls = button.closest('.player-controls');
+        const progressBar = playerControls.querySelector('.progress');
+        const currentTimeDisplay = playerControls.querySelector('.current-time');
+        const totalTimeDisplay = playerControls.querySelector('.total-time');
+        
+        // Set up visualizer
+        const visualizerCanvas = button.closest('.music-player').querySelector('.visualizer');
+        
+        // Add timeupdate event to update progress
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100;
+            progressBar.style.width = `${progress}%`;
             
-            // If there's already an audio playing
-            if (currentAudio) {
-                // If clicking the same button that's currently playing
-                if (currentAudio.src.includes(trackSrc) && !currentAudio.paused) {
-                    currentAudio.pause();
-                    button.classList.remove('playing');
-                    return;
-                } 
-                // If clicking a different button
-                else {
-                    currentAudio.pause();
-                    const previousButton = document.querySelector(`.play-button.playing`);
-                    if (previousButton) {
-                        previousButton.classList.remove('playing');
-                    }
-                }
+            // Update current time display
+            const currentMinutes = Math.floor(audio.currentTime / 60);
+            const currentSeconds = Math.floor(audio.currentTime % 60);
+            currentTimeDisplay.textContent = `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')}`;
+        });
+        
+        // Set total time once metadata is loaded
+        audio.addEventListener('loadedmetadata', () => {
+            const totalMinutes = Math.floor(audio.duration / 60);
+            const totalSeconds = Math.floor(audio.duration % 60);
+            totalTimeDisplay.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
+        });
+        
+        // Reset when finished
+        audio.addEventListener('ended', () => {
+            button.classList.remove('playing');
+            progressBar.style.width = '0%';
+            if (activeAudio === audio) {
+                activeAudio = null;
             }
-            
-            // If the current track is already created but paused, play it
-            if (currentAudio && currentAudio.src.includes(trackSrc) && currentAudio.paused) {
-                currentAudio.play();
-                button.classList.add('playing');
+        });
+        
+        // Add click handler for play/pause
+        button.addEventListener('click', () => {
+            // If this audio is currently playing, pause it
+            if (!audio.paused) {
+                audio.pause();
+                button.classList.remove('playing');
+                if (activeAudio === audio) {
+                    activeAudio = null;
+                }
                 return;
             }
             
-            // Create a new audio element for a new track
-            const audio = new Audio(trackSrc);
-            currentAudio = audio;
+            // If another audio is playing, pause it first
+            if (activeAudio && activeAudio !== audio) {
+                activeAudio.pause();
+                document.querySelectorAll('.play-button').forEach(btn => {
+                    if (btn.audioElement === activeAudio) {
+                        btn.classList.remove('playing');
+                    }
+                });
+            }
             
-            // Update button state
-            button.classList.add('playing');
-            
-            // Rest of your function remains the same...
-            // Get progress bar and time elements
-            const progressBar = button.parentElement.querySelector('.progress');
-            const currentTimeDisplay = button.parentElement.querySelector('.current-time');
-            const totalTimeDisplay = button.parentElement.querySelector('.total-time');
-            
-            // Initialize audio visualizer
-            const visualizerCanvas = button.closest('.music-player').querySelector('.visualizer');
-            initializeVisualizer(audio, visualizerCanvas);
-            
-            // Play the audio
-            audio.play();
-            
-            // Update progress bar and time displays
-            audio.addEventListener('timeupdate', () => {
-                const progress = (audio.currentTime / audio.duration) * 100;
-                progressBar.style.width = `${progress}%`;
-                
-                // Update current time display
-                const currentMinutes = Math.floor(audio.currentTime / 60);
-                const currentSeconds = Math.floor(audio.currentTime % 60);
-                currentTimeDisplay.textContent = `${currentMinutes}:${currentSeconds.toString().padStart(2, '0')}`;
-            });
-            
-            // Set total time once metadata is loaded
-            audio.addEventListener('loadedmetadata', () => {
-                const totalMinutes = Math.floor(audio.duration / 60);
-                const totalSeconds = Math.floor(audio.duration % 60);
-                totalTimeDisplay.textContent = `${totalMinutes}:${totalSeconds.toString().padStart(2, '0')}`;
-            });
-            
-            // Reset when finished
-            audio.addEventListener('ended', () => {
-                button.classList.remove('playing');
-                progressBar.style.width = '0%';
-                currentAudio = null;
-            });
+            // Play this audio
+            audio.play()
+                .then(() => {
+                    button.classList.add('playing');
+                    activeAudio = audio;
+                    
+                    // Initialize visualizer if needed
+                    if (visualizerCanvas) {
+                        initializeVisualizer(audio, visualizerCanvas);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error playing audio:", error);
+                });
+        });
+        
+        // Add click handler for progress bar
+        const progressContainer = playerControls.querySelector('.progress-bar');
+        progressContainer.addEventListener('click', (e) => {
+            const rect = progressContainer.getBoundingClientRect();
+            const clickPosition = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = clickPosition * audio.duration;
         });
     });
 }
@@ -1412,4 +1427,257 @@ document.addEventListener('DOMContentLoaded', function() {
     // ... your existing initializations
     initializeGrumpyCatChatbot();
 });
+// Universe of Knowledge Chatbot
+function initializeUniverseChatbot() {
+    const topicButtons = document.querySelectorAll('.topic-btn');
+    const universeChat = document.getElementById('universe-chat');
+    const chatMessages = document.getElementById('universe-chat-messages');
+    const topicTitle = document.getElementById('universe-topic-title');
+    const selectedTopicSpan = document.getElementById('selected-topic');
+    const userMessageInput = document.getElementById('universe-user-message');
+    const sendButton = document.getElementById('universe-send-message');
+    const closeButton = document.getElementById('close-universe-chat');
+    
+    let currentTopic = '';
+    
+    // Topic-specific responses and intros
+    const topicData = {
+        quantum: {
+            title: "Quantum Computing Expert",
+            intro: "Hi there! I'm here to explain quantum computing in simple terms. Think of it like a magical computer that can try all possible answers at once, instead of one at a time like normal computers!",
+            keywords: ["qubit", "superposition", "entanglement", "quantum gate", "quantum supremacy", "decoherence", "Shor's algorithm", "quantum bit", "quantum state", "quantum computer"]
+        },
+        spirituality: {
+            title: "Spirituality Guide",
+            intro: "Hello! Let me help you understand spirituality. It's like exploring the invisible side of life - the part that makes you feel connected to something bigger than yourself!",
+            keywords: ["meditation", "mindfulness", "consciousness", "soul", "enlightenment", "awareness", "being", "presence", "divine", "transcendence"]
+        },
+        rocket: {
+            title: "Rocket Science Explainer",
+            intro: "Hi there! I'll explain rocket science like you're five. Imagine throwing a really heavy balloon filled with air - that's basically how rockets work, but with fire instead of air!",
+            keywords: ["propulsion", "orbit", "thrust", "payload", "trajectory", "rocket engine", "fuel", "gravity", "space", "aerodynamics"]
+        },
+        ai: {
+            title: "AI Simplifier",
+            intro: "Hello! I'm here to explain AI in simple terms. Think of AI as teaching computers to learn from examples, just like how you learn to recognize cats after seeing many cat pictures!",
+            keywords: ["machine learning", "neural network", "deep learning", "algorithm", "training", "dataset", "model", "prediction", "classification", "robot"]
+        },
+        climate: {
+            title: "Climate Science Educator",
+            intro: "Hi! I'll explain climate science in easy terms. Imagine Earth wearing a blanket that keeps getting thicker - that's like greenhouse gases trapping heat and changing our weather!",
+            keywords: ["global warming", "greenhouse gases", "carbon dioxide", "temperature", "atmosphere", "renewable energy", "fossil fuels", "emissions", "sustainability", "sea level"]
+        },
+        neuroscience: {
+            title: "Brain Science Simplifier",
+            intro: "Hello! Let me explain how your brain works in simple terms. Imagine your brain as a super-busy city with billions of tiny messengers (neurons) sending letters (signals) to each other!",
+            keywords: ["neuron", "brain", "synapse", "neurotransmitter", "cognition", "memory", "consciousness", "nervous system", "neural pathway", "brain region"]
+        },
+        economics: {
+            title: "Economics Guide",
+            intro: "Hi there! I'll explain economics like you're five. Economics is like understanding how a giant cookie jar works - who gets cookies, how many, and what happens when we run out!",
+            keywords: ["market", "supply", "demand", "inflation", "currency", "trade", "capitalism", "recession", "GDP", "economic growth"]
+        },
+        genetics: {
+            title: "Genetic Engineering Expert",
+            intro: "Hello! I'll explain genetic engineering as if you're five. Imagine genes as instruction books for building living things, and we're learning to carefully change some of those instructions!",
+            keywords: ["DNA", "genome", "mutation", "gene editing", "CRISPR", "inheritance", "genetic modification", "chromosome", "sequence", "cloning"]
+        },
+        philosophy: {
+            title: "Philosophy of Mind Guide",
+            intro: "Hi! Let's explore philosophy of mind in simple terms. It's like asking: what is a thought made of? Are your mind and brain the same thing? Can computers think like people do?",
+            keywords: ["consciousness", "mind", "dualism", "identity", "qualia", "thought experiment", "free will", "determinism", "perception", "experience"]
+        },
+        international: {
+            title: "International Relations Explainer",
+            intro: "Hello! I'll explain international relations simply. Imagine countries as kids in a playground - some are friends, some argue, some share toys, and there are playground rules they try to follow!",
+            keywords: ["diplomacy", "sovereignty", "treaty", "foreign policy", "war", "peace", "alliance", "nation", "geopolitics", "international law"]
+        }
+    };
+    
+    // General explanations for each topic
+    const topicExplanations = {
+        quantum: [
+            "Quantum computers are like magic dice that show all numbers at once until you look at them. Normal computers can only show one number at a time.",
+            "Think of quantum bits or 'qubits' as super-coins. Regular coins show heads OR tails, but quantum coins can be heads AND tails at the same time until you check!",
+            "Quantum entanglement is like having two magic coins. When you flip one and it shows heads, the other instantly shows tails, even if it's far away!",
+            "Quantum computers might someday solve problems in minutes that would take regular computers longer than the universe has existed!",
+            "Quantum computing is like having a library where you can check all books at once instead of one at a time."
+        ],
+        spirituality: [
+            "Spirituality is like listening to the quiet music of life that's always playing underneath all the noise.",
+            "Meditation is like giving your mind a bath - washing away busy thoughts to see what's underneath.",
+            "Spiritual practices are like glasses that help you see the invisible connections between everything.",
+            "Your spirit is like an invisible friend that's always with you, it's the 'you' behind your thoughts and feelings.",
+            "Different spiritual paths are like different roads that all lead to the same mountain top."
+        ],
+        rocket: [
+            "Rockets work by pushing gas out one end really fast, which pushes the rocket in the opposite direction - just like letting go of a balloon!",
+            "Getting to space is like climbing a really tall mountain, but gravity is trying to pull you back down the whole time.",
+            "Orbiting Earth is actually like falling around the planet. You're falling toward Earth, but moving forward so fast that you keep missing it!",
+            "Rocket fuel is like super powerful car gas, but rockets need to carry their own oxygen too because there's no air in space.",
+            "Multi-stage rockets are like using a big spring to jump, then using a smaller spring mid-air to jump even higher."
+        ],
+        ai: [
+            "AI learns from examples, just like how you learn to recognize dogs after seeing many dogs. Show it thousands of pictures, and it figures out 'dog patterns'!",
+            "Neural networks in AI are like a game of Telephone with thousands of players, except they can adjust how they pass messages to get better results.",
+            "Machine learning is like teaching a computer to ride a bike - it falls a lot at first, but eventually learns the right balance by practicing.",
+            "AI doesn't actually 'think' like people do. It's more like a really good parrot that's seen so many examples it can predict what to say next.",
+            "Creating AI is like raising a very literal-minded child that only understands exactly what you show it, not what you meant to show it."
+        ],
+        climate: [
+            "Climate change is like slowly turning up the heat in your house - some rooms get hotter than others, and things start acting differently.",
+            "Greenhouse gases are like a blanket around Earth. We need some blanket to stay warm, but too much and we get too hot!",
+            "Carbon dioxide is like invisible dirt we put in the sky when we burn things like gasoline and coal. It builds up because trees can't clean it all.",
+            "Renewable energy is like having a magical apple tree that gives you apples forever, instead of a basket of apples that eventually runs out.",
+            "Climate scientists are like weather detectives, looking for clues about how our planet's temperature is changing and why."
+        ],
+        neuroscience: [
+            "Your brain is like a super-computer made of 86 billion tiny parts called neurons, all sending messages to each other.",
+            "Memories are like footprints in sand - recent ones are clear, but older ones can get washed away or changed over time.",
+            "Learning something new is like making a path through a forest. The more you walk the path, the easier it becomes to follow.",
+            "Different parts of your brain have different jobs - one part helps you see, another helps you move, another helps you feel emotions.",
+            "Your brain uses electricity and chemicals to send messages, kind of like a really complicated text message system in your head."
+        ],
+        economics: [
+            "Economics is about how people choose to use things that are limited, like money or time or cookies in a jar.",
+            "Supply and demand is like a seesaw - when lots of people want something scarce, the price goes up; when few people want something abundant, the price goes down.",
+            "Money is like tickets at a carnival - it's not valuable by itself, but we agree to trade it for fun rides and cotton candy.",
+            "A country's economy is like a giant piggy bank that everyone puts into and takes out of in different ways.",
+            "Inflation is like a sneaky thief that makes your money buy less stuff over time."
+        ],
+        genetics: [
+            "DNA is like a cookbook with recipes to build every part of your body, from your eye color to how tall you'll be.",
+            "Genes are like specific recipes in that cookbook - maybe the recipe for your hair or your nose shape.",
+            "Genetic engineering is like carefully changing one ingredient in a recipe to make the cake turn out differently.",
+            "CRISPR is like magical scissors that can cut exactly one specific word out of a book and replace it with a different word.",
+            "Mutations are like spelling mistakes in the DNA cookbook. Some don't matter, some make the recipe better, and some make it not work."
+        ],
+        philosophy: [
+            "Philosophy of mind asks: is your mind like the music a piano plays, or is it the piano itself?",
+            "Consciousness is like the light that's on when you're awake - we all experience it, but it's hard to explain what it actually is.",
+            "The mind-body problem asks if your thoughts and feelings are just brain activity or something more, like asking if a story is just ink on paper or something more.",
+            "Free will is questioning whether you really choose your ice cream flavor, or if it was already determined by your past experiences and brain chemistry.",
+            "The 'hard problem of consciousness' asks why we experience feelings at all - why does stubbing your toe feel like something rather than nothing?"
+        ],
+        international: [
+            "Countries interact like people at a big party - some are friends, some avoid each other, and they all follow certain party rules to get along.",
+            "Diplomacy is like using words instead of fists to solve problems between countries.",
+            "International law is like playground rules that countries agree to follow, but there's no big teacher to send them to timeout if they break the rules.",
+            "Trade between countries is like trading lunch items with friends - everyone gives something and gets something they want more.",
+            "Global challenges like climate change are like a leak in a boat everyone shares - countries need to work together to fix it, or everyone gets wet!"
+        ]
+    };
+    
+    // Function to add message to chat
+    function addMessage(text, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('universe-message');
+        messageDiv.classList.add(isUser ? 'user' : 'bot');
+        
+        const messagePara = document.createElement('p');
+        messagePara.textContent = text;
+        
+        messageDiv.appendChild(messagePara);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Function to get topic response
+    function getTopicResponse(topic, userMessage) {
+        const lowercaseMessage = userMessage.toLowerCase();
+        
+        // Check for topic-specific keywords
+        const topicInfo = topicData[topic];
+        for (const keyword of topicInfo.keywords) {
+            if (lowercaseMessage.includes(keyword.toLowerCase())) {
+                // If keyword found, return a related explanation
+                const explanations = topicExplanations[topic];
+                const explanation = explanations[Math.floor(Math.random() * explanations.length)];
+                return explanation;
+            }
+        }
+        
+        // If no specific keywords found, give a general explanation
+        const explanations = topicExplanations[topic];
+        return explanations[Math.floor(Math.random() * explanations.length)];
+    }
+    
+    // Initialize topic buttons
+    topicButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Get selected topic
+            currentTopic = button.getAttribute('data-topic');
+            
+            // Update active button
+            topicButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            // Update chat header and selected topic
+            const topicInfo = topicData[currentTopic];
+            topicTitle.textContent = topicInfo.title;
+            selectedTopicSpan.textContent = currentTopic.replace(/^\w/, c => c.toUpperCase());
+            
+            // Clear previous messages
+            chatMessages.innerHTML = '';
+            
+            // Add intro message
+            addMessage(topicInfo.intro);
+            
+            // Show chat container
+            universeChat.classList.remove('hidden');
+            
+            // Focus input
+            userMessageInput.focus();
+        });
+    });
+    
+    // Handle send button click
+    function handleSend() {
+        const userMessage = userMessageInput.value.trim();
+        
+        if (userMessage && currentTopic) {
+            // Add user message
+            addMessage(userMessage, true);
+            
+            // Clear input
+            userMessageInput.value = '';
+            
+            // Get and add bot response after a short delay
+            setTimeout(() => {
+                const botResponse = getTopicResponse(currentTopic, userMessage);
+                addMessage(botResponse);
+            }, 500 + Math.random() * 1000);
+        }
+    }
+    
+    // Event listeners
+    sendButton.addEventListener('click', handleSend);
+    
+    userMessageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSend();
+        }
+    });
+    
+    // Close button
+    closeButton.addEventListener('click', () => {
+        universeChat.classList.add('hidden');
+        topicButtons.forEach(btn => btn.classList.remove('active'));
+    });
+    
+    // Add to navigation menu
+    const navList = document.querySelector('nav ul');
+    if (navList) {
+        const universeLink = document.createElement('li');
+        universeLink.innerHTML = '<a href="#universe">Universe</a>';
+        navList.appendChild(universeLink);
+    }
+}
 
+// Add this to your DOMContentLoaded event handler
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing initializations
+    initializeUniverseChatbot();
+});

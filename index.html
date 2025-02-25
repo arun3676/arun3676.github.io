@@ -370,6 +370,44 @@
             </div>
         </div>
     </section>
+    <!-- Add this section before the closing </main> tag -->
+<section id="universe">
+    <h2>Universe of Knowledge</h2>
+    <div class="universe-container">
+        <div class="universe-intro">
+            <p>Select a complex topic and have it explained like you're five years old.</p>
+        </div>
+        
+        <div class="topic-selector">
+            <button class="topic-btn" data-topic="quantum">Quantum Computing</button>
+            <button class="topic-btn" data-topic="spirituality">Spirituality</button>
+            <button class="topic-btn" data-topic="rocket">Rocket Science</button>
+            <button class="topic-btn" data-topic="ai">Artificial Intelligence</button>
+            <button class="topic-btn" data-topic="climate">Climate Science</button>
+            <button class="topic-btn" data-topic="neuroscience">Neuroscience</button>
+            <button class="topic-btn" data-topic="economics">Economics</button>
+            <button class="topic-btn" data-topic="genetics">Genetic Engineering</button>
+            <button class="topic-btn" data-topic="philosophy">Philosophy of Mind</button>
+            <button class="topic-btn" data-topic="international">International Relations</button>
+        </div>
+        
+        <div class="universe-chat-container hidden" id="universe-chat">
+            <div class="universe-chat-header">
+                <h3 id="universe-topic-title">Topic Expert</h3>
+                <button id="close-universe-chat">&times;</button>
+            </div>
+            <div class="universe-chat-messages" id="universe-chat-messages">
+                <div class="universe-message bot">
+                    <p>Hello! I'm here to explain complex ideas in simple terms. What would you like to know about <span id="selected-topic"></span>?</p>
+                </div>
+            </div>
+            <div class="universe-chat-input">
+                <input type="text" id="universe-user-message" placeholder="Ask anything about this topic...">
+                <button id="universe-send-message">Ask</button>
+            </div>
+        </div>
+    </div>
+</section>
     </main>
 
     <footer>
