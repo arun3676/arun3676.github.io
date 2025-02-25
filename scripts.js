@@ -877,3 +877,326 @@ function initializeLinkAnimations() {
         });
     });
 }
+// Add this to your scripts.js file or create a new file called game.js and link it in your HTML
+
+// Initialize Power Rangers Game
+function initializePowerRangersGame() {
+    // Game elements
+    const gameArea = document.getElementById('game-area');
+    const rangerSelect = document.getElementById('ranger-select');
+    const gamePlayArea = document.getElementById('game-play-area');
+    const player = document.getElementById('player');
+    const startButton = document.getElementById('start-game');
+    const gameOverScreen = document.getElementById('game-over');
+    const levelUpScreen = document.getElementById('level-up');
+    const playAgainButton = document.getElementById('play-again');
+    const scoreElement = document.getElementById('score');
+    const finalScoreElement = document.getElementById('final-score');
+    const levelElement = document.getElementById('level');
+    const timeElement = document.getElementById('time');
+    
+    // Game variables
+    let score = 0;
+    let level = 1;
+    let time = 60;
+    let gameActive = false;
+    let selectedRanger = '';
+    let rangerColor = '';
+    let monsterInterval;
+    let monsterSpeed = 2;
+    let monsterSpawnRate = 2000;
+    let countdown;
+    
+    // Initialize
+    function init() {
+        // Set up ranger selection
+        const rangerOptions = document.querySelectorAll('.ranger-option');
+        rangerOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                selectedRanger = option.getAttribute('data-ranger');
+                rangerColor = getComputedStyle(option.querySelector('.ranger')).backgroundColor;
+                rangerSelect.classList.add('hidden');
+                gamePlayArea.classList.remove('hidden');
+                player.style.backgroundColor = rangerColor;
+                startGame();
+            });
+        });
+        
+        // Set up start button
+        startButton.addEventListener('click', () => {
+            rangerSelect.classList.remove('hidden');
+            startButton.classList.add('hidden');
+        });
+        
+        // Set up play again button
+        playAgainButton.addEventListener('click', resetGame);
+        
+        // Set up mouse and touch movement
+        gamePlayArea.addEventListener('mousemove', movePlayer);
+        gamePlayArea.addEventListener('touchmove', movePlayerTouch);
+        
+        // Set up click/tap to shoot
+        gamePlayArea.addEventListener('click', shootBeam);
+        gamePlayArea.addEventListener('touchend', shootBeam);
+    }
+    
+    // Start the game
+    function startGame() {
+        gameActive = true;
+        score = 0;
+        level = 1;
+        time = 60;
+        monsterSpeed = 2;
+        monsterSpawnRate = 2000;
+        
+        updateScore();
+        updateLevel();
+        updateTime();
+        
+        // Start spawning monsters
+        monsterInterval = setInterval(spawnMonster, monsterSpawnRate);
+        
+        // Start countdown
+        countdown = setInterval(() => {
+            time--;
+            updateTime();
+            
+            if (time <= 0) {
+                endGame();
+            }
+        }, 1000);
+    }
+    
+    // Reset game
+    function resetGame() {
+        // Clear all monsters
+        const monsters = document.querySelectorAll('.monster');
+        monsters.forEach(monster => monster.remove());
+        
+        // Hide game over screen
+        gameOverScreen.classList.add('hidden');
+        
+        // Show ranger selection
+        rangerSelect.classList.remove('hidden');
+        gamePlayArea.classList.add('hidden');
+        startButton.classList.remove('hidden');
+    }
+    
+    // End game
+    function endGame() {
+        gameActive = false;
+        clearInterval(monsterInterval);
+        clearInterval(countdown);
+        
+        // Remove all monsters
+        const monsters = document.querySelectorAll('.monster');
+        monsters.forEach(monster => monster.remove());
+        
+        // Show game over screen
+        finalScoreElement.textContent = score;
+        gameOverScreen.classList.remove('hidden');
+    }
+    
+    // Spawn a monster
+    function spawnMonster() {
+        if (!gameActive) return;
+        
+        const monster = document.createElement('div');
+        monster.classList.add('monster');
+        
+        // Add monster features
+        const mouth = document.createElement('div');
+        mouth.classList.add('monster-mouth');
+        monster.appendChild(mouth);
+        
+        // Random position
+        const position = Math.random() * (gameArea.offsetWidth - 50);
+        monster.style.left = `${position}px`;
+        monster.style.top = '0px';
+        
+        // Custom color for variety
+        const monsterColors = ['purple', '#8B008B', '#9400D3', '#800080', '#4B0082'];
+        monster.style.backgroundColor = monsterColors[Math.floor(Math.random() * monsterColors.length)];
+        
+        // Add click handler to destroy monster
+        monster.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent shooting beam when clicking monster
+            destroyMonster(monster);
+        });
+        
+        gamePlayArea.appendChild(monster);
+        
+        // Animate monster falling
+        let position_y = 0;
+        const monsterFall = setInterval(() => {
+            if (!gameActive || !monster.isConnected) {
+                clearInterval(monsterFall);
+                return;
+            }
+            
+            position_y += monsterSpeed;
+            monster.style.top = `${position_y}px`;
+            
+            // Check if monster reached bottom
+            if (position_y > gameArea.offsetHeight - 50) {
+                clearInterval(monsterFall);
+                monster.remove();
+                
+                // Penalty for missed monster
+                score = Math.max(0, score - 5);
+                updateScore();
+                
+                // Visual feedback
+                gamePlayArea.style.backgroundColor = 'rgba(255, 0, 0, 0.2)';
+                setTimeout(() => {
+                    gamePlayArea.style.backgroundColor = 'transparent';
+                }, 200);
+            }
+        }, 30);
+    }
+    
+    // Destroy monster and add explosion effect
+    function destroyMonster(monster) {
+        // Prevent multiple clicks
+        if (!monster.isConnected) return;
+        
+        // Create explosion
+        const explosion = document.createElement('div');
+        explosion.classList.add('explosion');
+        explosion.style.left = monster.style.left;
+        explosion.style.top = monster.style.top;
+        gamePlayArea.appendChild(explosion);
+        
+        // Remove explosion after animation
+        setTimeout(() => {
+            if (explosion.isConnected) {
+                explosion.remove();
+            }
+        }, 500);
+        
+        // Remove monster
+        monster.remove();
+        
+        // Add score
+        score += 10;
+        updateScore();
+        
+        // Check for level up
+        if (score >= level * 100) {
+            levelUp();
+        }
+    }
+    
+    // Level up
+    function levelUp() {
+        level++;
+        updateLevel();
+        
+        // Show level up message
+        levelUpScreen.classList.remove('hidden');
+        setTimeout(() => {
+            levelUpScreen.classList.add('hidden');
+        }, 1500);
+        
+        // Increase difficulty
+        monsterSpeed += 0.5;
+        monsterSpawnRate = Math.max(500, monsterSpawnRate - 300);
+        
+        // Restart monster spawning with new rate
+        clearInterval(monsterInterval);
+        monsterInterval = setInterval(spawnMonster, monsterSpawnRate);
+        
+        // Add time bonus
+        time += 15;
+        updateTime();
+    }
+    
+    // Move player with mouse
+    function movePlayer(e) {
+        if (!gameActive) return;
+        
+        const rect = gamePlayArea.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const position = Math.max(30, Math.min(gameArea.offsetWidth - 30, x));
+        player.style.left = `${position}px`;
+    }
+    
+    // Move player with touch
+    function movePlayerTouch(e) {
+        if (!gameActive) return;
+        e.preventDefault();
+        
+        const rect = gamePlayArea.getBoundingClientRect();
+        const x = e.touches[0].clientX - rect.left;
+        const position = Math.max(30, Math.min(gameArea.offsetWidth - 30, x));
+        player.style.left = `${position}px`;
+    }
+    
+    // Shoot beam
+    function shootBeam(e) {
+        if (!gameActive) return;
+        
+        const beam = document.createElement('div');
+        beam.classList.add('beam');
+        
+        // Position the beam at player's position
+        const playerPos = player.getBoundingClientRect();
+        const gamePos = gamePlayArea.getBoundingClientRect();
+        const beamX = playerPos.left + playerPos.width / 2 - gamePos.left;
+        
+        beam.style.left = `${beamX}px`;
+        beam.style.bottom = '80px';
+        gamePlayArea.appendChild(beam);
+        
+        // Remove beam after animation
+        setTimeout(() => {
+            if (beam.isConnected) {
+                beam.remove();
+            }
+        }, 300);
+        
+        // Check for collision with monsters
+        checkBeamCollisions(beam);
+    }
+    
+    // Check if beam hits any monsters
+    function checkBeamCollisions(beam) {
+        const monsters = document.querySelectorAll('.monster');
+        const beamRect = beam.getBoundingClientRect();
+        
+        monsters.forEach(monster => {
+            const monsterRect = monster.getBoundingClientRect();
+            
+            // Simple collision detection
+            if (beamRect.left < monsterRect.right && 
+                beamRect.right > monsterRect.left &&
+                beamRect.top < monsterRect.bottom) {
+                destroyMonster(monster);
+            }
+        });
+    }
+    
+    // Update score display
+    function updateScore() {
+        scoreElement.textContent = score;
+    }
+    
+    // Update level display
+    function updateLevel() {
+        levelElement.textContent = level;
+    }
+    
+    // Update time display
+    function updateTime() {
+        timeElement.textContent = time;
+    }
+    
+    // Initialize the game
+    init();
+}
+
+// Add this line to your DOMContentLoaded event listener in scripts.js
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing initializations
+    initializePowerRangersGame();
+});

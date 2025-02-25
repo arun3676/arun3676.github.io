@@ -43,6 +43,7 @@
                 <li><a href="#music">Music</a></li>
                 <li><a href="#images">AI Images</a></li>
                 <li><a href="#raw">Raw</a></li>
+                <li><a href="#game">Game</a></li>
                 <li><button class="theme-toggle" aria-label="Toggle dark/light mode">
                     <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="12" cy="12" r="5"></circle>
@@ -106,9 +107,7 @@
                         "One step forward and two steps back, still got a lot to learn that's a fact"
                     </div>
                 </div>
-                    <div class="song-quote">
-                        "One step forward and two steps back, still got a lot to learn that's a fact"
-                    </div>
+                    
                 </div>
             </div>
         </section>
@@ -288,6 +287,64 @@
                 </blockquote>
             </div>
         </section>
+        <!-- Add this section to your index.html -->
+<section id="game">
+    <h2>Power Rangers Game</h2>
+    <div class="game-container">
+        <div class="game-intro">
+            <p>Help the Power Rangers defend the city! Click on the monsters to defeat them before they reach the bottom of the screen!</p>
+            <button id="start-game" class="game-btn">Start Game</button>
+            <div class="game-score">
+                <span>Score: <span id="score">0</span></span>
+                <span>Level: <span id="level">1</span></span>
+                <span>Time: <span id="time">60</span>s</span>
+            </div>
+        </div>
+        <div id="game-area">
+            <div id="ranger-select" class="ranger-select">
+                <h3>Choose Your Ranger</h3>
+                <div class="rangers-grid">
+                    <div class="ranger-option" data-ranger="red">
+                        <div class="ranger red-ranger"></div>
+                        <p>Red Ranger</p>
+                    </div>
+                    <div class="ranger-option" data-ranger="blue">
+                        <div class="ranger blue-ranger"></div>
+                        <p>Blue Ranger</p>
+                    </div>
+                    <div class="ranger-option" data-ranger="yellow">
+                        <div class="ranger yellow-ranger"></div>
+                        <p>Yellow Ranger</p>
+                    </div>
+                    <div class="ranger-option" data-ranger="black">
+                        <div class="ranger black-ranger"></div>
+                        <p>Black Ranger</p>
+                    </div>
+                    <div class="ranger-option" data-ranger="pink">
+                        <div class="ranger pink-ranger"></div>
+                        <p>Pink Ranger</p>
+                    </div>
+                    <div class="ranger-option" data-ranger="green">
+                        <div class="ranger green-ranger"></div>
+                        <p>Green Ranger</p>
+                    </div>
+                </div>
+            </div>
+            <div id="game-play-area" class="hidden">
+                <div id="player" class="player"></div>
+            </div>
+            <div id="game-over" class="game-message hidden">
+                <h3>Game Over!</h3>
+                <p>Your final score: <span id="final-score">0</span></p>
+                <button id="play-again" class="game-btn">Play Again</button>
+            </div>
+            <div id="level-up" class="game-message hidden">
+                <h3>Level Up!</h3>
+                <p>Get ready for more monsters!</p>
+            </div>
+        </div>
+    </div>
+</section> 
     </main>
 
     <footer>
