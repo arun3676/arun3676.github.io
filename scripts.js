@@ -1415,46 +1415,157 @@ function initializeSpaceInvadersGame() {
         }
     }
     
-    // Handle touch movement
     function handleTouchMove(e) {
         if (!gameActive) return;
         e.preventDefault();
         
         const touch = e.touches[0];
         const rect = canvas.getBoundingClientRect();
-        const x = touch.clientX - rect.left;
+        const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
         
         // Move player ship to touch position
         playerShip.x = Math.max(0, Math.min(canvas.width - playerShip.width, x - playerShip.width / 2));
     }
     
-    // Handle touch shoot
-    function handleTouchShoot(e) {
+    // Add on-screen controls for mobile
+    function addMobileControls() {
+        const gameArea = document.getElementById('game-area');
+        
+        // Create mobile control overlay
+        const mobileControls = document.createElement('div');
+        mobileControls.className = 'mobile-controls';
+        
+        // Left button
+        const leftBtn = document.createElement('button');
+        leftBtn.className = 'mobile-control-btn left-btn';
+        leftBtn.innerHTML = '&lt;';
+        leftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isMovingLeft = true;
+        });
+        leftBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isMovingLeft = false;
+        });
+        
+        // Right button
+        const rightBtn = document.createElement('button');
+        rightBtn.className = 'mobile-control-btn right-btn';
+        rightBtn.innerHTML = '&gt;';
+        rightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isMovingRight = true;
+        });
+        rightBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isMovingRight = false;
+        });
+        
+        // Fire button
+        const fireBtn = document.createElement('button');
+        fireBtn.className = 'mobile-control-btn fire-btn';
+        fireBtn.innerHTML = 'FIRE';
+        fireBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            shootBullet();
+        });
+        
+        // Add buttons to mobile controls
+        mobileControls.appendChild(leftBtn);
+        mobileControls.appendChild(fireBtn);
+        mobileControls.appendChild(rightBtn);
+        
+        // Add mobile controls to game area
+        gameArea.appendChild(mobileControls);
+    }
+    
+    // Add these variables at the beginning of your initializeSpaceInvadersGame function
+    let isMovingLeft = false;
+    let isMovingRight = false;
+    
+    // Modify the gameLoop function to use the movement flags
+    function gameLoop(timestamp) {
         if (!gameActive) return;
-        e.preventDefault();
         
-        shootBullet();
+        // Calculate delta time
+        const deltaTime = timestamp - lastTime;
+        lastTime = timestamp;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Handle continuous movement for mobile
+        if (isMovingLeft) {
+            playerShip.moveLeft();
+        }
+        if (isMovingRight) {
+            playerShip.moveRight();
+        }
+        
+        // Rest of your existing gameLoop code...
+        
+        // Update and draw player
+        playerShip.draw();
+        
+        // Update and draw bullets
+        updateBullets(deltaTime);
+        
+        // Update and draw invaders
+        updateInvaders(deltaTime);
+        
+        // Enemy shooting
+        handleEnemyShooting(timestamp);
+        
+        // Check for end of level
+        if (invaders.every(invader => !invader.alive)) {
+            levelUp();
+        }
+        
+        // Decrement shoot cooldown
+        if (shootCooldown > 0) {
+            shootCooldown -= deltaTime;
+        }
+        
+        // Continue the game loop
+        requestAnimationFrame(gameLoop);
     }
     
-    // Shoot bullet
-    function shootBullet() {
-        if (shootCooldown > 0) return;
+    // Add this to your init function
+    function init() {
+        // Your existing code...
         
-        const bullet = new Bullet(
-            playerShip.x + playerShip.width / 2,
-            playerShip.y,
-            3,
-            10,
-            '#0f0',
-            10
-        );
+        // Detect if we're on mobile
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        bullets.push(bullet);
+        if (isMobile) {
+            addMobileControls();
+        }
         
-        // Set cooldown to prevent rapid fire
-        shootCooldown = 200;
+        // Adjust canvas size based on device
+        function adjustCanvasSize() {
+            const gameArea = document.getElementById('game-area');
+            const containerWidth = gameArea.clientWidth;
+            
+            // Set maximum dimensions while maintaining aspect ratio
+            const maxWidth = Math.min(800, containerWidth - 20);
+            const aspectRatio = 16 / 10;
+            const maxHeight = maxWidth / aspectRatio;
+            
+            // Update canvas size
+            canvas.width = maxWidth;
+            canvas.height = maxHeight;
+            
+            // Update canvas display size
+            canvas.style.width = `${maxWidth}px`;
+            canvas.style.height = `${maxHeight}px`;
+        }
+        
+        // Call adjustCanvasSize initially and on window resize
+        adjustCanvasSize();
+        window.addEventListener('resize', adjustCanvasSize);
+        
+        // Your existing code...
     }
-    
     // Initialize the game
     init();
 }
@@ -1923,4 +2034,288 @@ function initializeUniverseChatbot() {
 document.addEventListener('DOMContentLoaded', function() {
     // ... your existing initializations
     initializeUniverseChatbot();
+});
+// Add this to your scripts.js file
+
+// Multi-personality AI Chatbot System
+function initializeAIChatbotSystem() {
+    const chatMessages = document.getElementById('chat-messages');
+    const userMessageInput = document.getElementById('user-message');
+    const sendButton = document.getElementById('send-message');
+    const chatSection = document.getElementById('chatbot');
+    
+    // Create persona selector
+    const personaSelector = document.createElement('div');
+    personaSelector.className = 'persona-selector';
+    personaSelector.innerHTML = `
+        <h3>Select an AI Persona</h3>
+        <div class="persona-options">
+            <button class="persona-option active" data-persona="grumpy">Grumpy Cat</button>
+            <button class="persona-option" data-persona="philosopher">Philosopher</button>
+            <button class="persona-option" data-persona="cricketer">Cricket Expert</button>
+            <button class="persona-option" data-persona="comedian">Comedian</button>
+        </div>
+    `;
+    
+    // Insert the persona selector before the chat container
+    const chatContainer = document.querySelector('.chatbot-container');
+    chatSection.insertBefore(personaSelector, chatContainer);
+    
+    // Initialize current persona
+    let currentPersona = 'grumpy';
+    
+    // Persona-specific avatar and greeting
+    const personaDetails = {
+        grumpy: {
+            name: 'Mittens - The Cat Who Doesn\'t Care',
+            greeting: 'Ugh, another human. What do you want? I was napping.',
+            avatar: 'cat'
+        },
+        philosopher: {
+            name: 'Aristotle - Deep Thinker',
+            greeting: 'Greetings, seeker of wisdom. What philosophical query shall we contemplate today?',
+            avatar: 'philosopher'
+        },
+        cricketer: {
+            name: 'Sir Cricket - Master of the Game',
+            greeting: 'Howzat! Welcome to the crease, mate! What cricket knowledge do you need today?',
+            avatar: 'cricketer'
+        },
+        comedian: {
+            name: 'Laughs-A-Lot - Professional Joke Machine',
+            greeting: 'Hey there! Why did the JavaScript developer wear glasses? Because they couldn\'t C#! *badum-tss* What can I joke about for you today?',
+            avatar: 'comedian'
+        }
+    };
+    
+    // Persona responses
+    const grumpyCatResponses = [
+        "Do I look like I care? Because I don't.",
+        "Wow, that's so interesting... said no cat ever.",
+        "I was having a great nap until you decided to talk.",
+        "The audacity of humans never ceases to amaze me.",
+        "Let me check my schedule... nope, don't care.",
+        "I would answer, but I'm busy ignoring you.",
+        "Is this conversation really necessary?",
+        "Humans and their silly questions...",
+        "That deserves a solid 'meh' from me.",
+        "I'd rather be licking my fur than answering that."
+    ];
+    
+    const philosopherResponses = [
+        "Perhaps the question itself contains its answer, if we examine our assumptions.",
+        "As Socrates would say, true wisdom begins with acknowledging how little we know.",
+        "To understand this, we must first question the nature of understanding itself.",
+        "The ancient Stoics would suggest that our reaction to events, not the events themselves, defines our experience.",
+        "Consider this: are we seeking truth, or merely confirmation of what we already believe?",
+        "The universe unfolds according to patterns we can glimpse but never fully comprehend.",
+        "Existence precedes essence - we define ourselves through our choices and actions.",
+        "The paradox of knowledge is that the more we learn, the more we realize how much we don't know.",
+        "Truth is not merely correspondence with facts, but coherence with our broader understanding of reality.",
+        "The pursuit of wisdom is not a destination but an endless journey of questioning."
+    ];
+    
+    const cricketerResponses = [
+        "Well, in cricketing terms, that's like trying to hit a yorker for six - challenging but doable!",
+        "The stats don't lie, mate. That's a textbook approach to the game.",
+        "If you look at how Kohli plays that shot, you'll understand the technique better.",
+        "The pitch conditions make all the difference. It's like comparing Lords to the WACA!",
+        "That's a googly of a question! Let me break down the answer for you.",
+        "In the history of Test cricket, that strategy has proven quite effective, especially in the subcontinent.",
+        "The IPL has completely revolutionized that aspect of cricket, no doubt about it.",
+        "It's all about the wrist position. That's what separates good spinners from great ones.",
+        "The DRS system would definitely have something to say about that decision!",
+        "Cricket is a game of glorious uncertainties, but the data suggests a clear pattern here."
+    ];
+    
+    const comedianResponses = [
+        "That's what she said! Sorry, couldn't help myself.",
+        "If that were any more obvious, it would need its own Instagram account.",
+        "That reminds me of the time I tried to explain variables to my cat. It was a constant struggle!",
+        "I'd make a joke about arrays, but they're all out of index.",
+        "Life is like Git. We all just commit and hope for the best.",
+        "I'm like HTML - not very functional but structurally necessary!",
+        "That idea is so half-baked it's still cold in the middle.",
+        "I'm not saying your question is recursive, but have you considered asking yourself?",
+        "If programming languages were comedians, JavaScript would definitely be the one with identity issues.",
+        "That's about as useful as a screen door on a submarine!"
+    ];
+    
+    // Special keywords for each persona
+    const personaKeywords = {
+        grumpy: {
+            "food": "Finally, a topic worth discussing. Where is it?",
+            "pet": "You may touch me for exactly 2.5 pets. Any more and I attack.",
+            "sleep": "The only activity I respect. Now shush, you're cutting into my 18 hours.",
+            "dog": "Don't mention those slobbering beasts in my presence."
+        },
+        philosopher: {
+            "meaning": "Meaning is not something discovered, but rather created through our actions and interpretations.",
+            "existence": "To exist is to be perceived, but consciousness adds the dimension of knowing that one exists.",
+            "truth": "Truth may be viewed as correspondence with reality, coherence with a system of beliefs, or what is pragmatically useful.",
+            "free will": "Are our choices truly free, or merely the inevitable outcome of prior causes? This question has puzzled philosophers for millennia."
+        },
+        cricketer: {
+            "virat": "Virat Kohli's cover drive is perhaps the most elegant shot in modern cricket. Textbook technique with wrists of steel!",
+            "sachin": "The Little Master! Sachin Tendulkar holds nearly every batting record worth having. 100 international centuries says it all.",
+            "t20": "T20 has revolutionized cricket with power hitting, innovative shots, and specialized tactics. The game evolves!",
+            "ipl": "The IPL changed cricket economics forever. It's the perfect blend of cricket, entertainment, and business."
+        },
+        comedian: {
+            "joke": "Why don't scientists trust atoms? Because they make up everything! *adjusts tie* I'll be here all week, folks.",
+            "funny": "You know what's funny? The word 'queue' is just the letter 'Q' followed by four silent letters. They're just waiting in line!",
+            "laugh": "Did you hear about the programmer who got stuck in the shower? The instructions said: Lather, Rinse, Repeat.",
+            "code": "Why do programmers prefer dark mode? Because light attracts bugs!"
+        }
+    };
+    
+    // Function to get avatar HTML
+    function getAvatarHTML(persona) {
+        const avatarType = personaDetails[persona].avatar;
+        let avatarHTML = '';
+        
+        switch(avatarType) {
+            case 'cat':
+                avatarHTML = `<div class="cat-avatar"></div>`;
+                break;
+            case 'philosopher':
+                avatarHTML = `<div class="philosopher-avatar"></div>`;
+                break;
+            case 'cricketer':
+                avatarHTML = `<div class="cricketer-avatar"></div>`;
+                break;
+            case 'comedian':
+                avatarHTML = `<div class="comedian-avatar"></div>`;
+                break;
+            default:
+                avatarHTML = `<div class="cat-avatar"></div>`;
+        }
+        
+        return avatarHTML;
+    }
+    
+    // Function to update the chat header
+    function updateChatHeader(persona) {
+        const chatHeader = document.querySelector('.chat-header');
+        const personaInfo = personaDetails[persona];
+        
+        chatHeader.innerHTML = `
+            ${getAvatarHTML(persona)}
+            <h3>${personaInfo.name}</h3>
+        `;
+    }
+    
+    // Function to add message to chat
+    function addMessage(text, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message');
+        messageDiv.classList.add(isUser ? 'user' : 'bot');
+        
+        const messagePara = document.createElement('p');
+        messagePara.textContent = text;
+        
+        messageDiv.appendChild(messagePara);
+        chatMessages.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Function to get persona response
+    function getPersonaResponse(persona, userMessage) {
+        const lowercaseMessage = userMessage.toLowerCase();
+        
+        // Check for special keyword responses
+        const keywords = personaKeywords[persona];
+        for (const [key, value] of Object.entries(keywords)) {
+            if (lowercaseMessage.includes(key)) {
+                return value;
+            }
+        }
+        
+        // Get random response based on persona
+        let responses;
+        switch(persona) {
+            case 'grumpy':
+                responses = grumpyCatResponses;
+                break;
+            case 'philosopher':
+                responses = philosopherResponses;
+                break;
+            case 'cricketer':
+                responses = cricketerResponses;
+                break;
+            case 'comedian':
+                responses = comedianResponses;
+                break;
+            default:
+                responses = grumpyCatResponses;
+        }
+        
+        return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    // Handle send button click
+    function handleSend() {
+        const userMessage = userMessageInput.value.trim();
+        
+        if (userMessage) {
+            // Add user message
+            addMessage(userMessage, true);
+            
+            // Clear input
+            userMessageInput.value = '';
+            
+            // Get and add persona response after a short delay
+            setTimeout(() => {
+                const botResponse = getPersonaResponse(currentPersona, userMessage);
+                addMessage(botResponse);
+            }, 500 + Math.random() * 1000); // Random delay between 500ms and 1500ms
+        }
+    }
+    
+    // Event listeners
+    sendButton.addEventListener('click', handleSend);
+    
+    userMessageInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSend();
+        }
+    });
+    
+    // Persona selection
+    const personaOptions = document.querySelectorAll('.persona-option');
+    personaOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            // Update active class
+            personaOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            
+            // Get selected persona
+            const newPersona = option.getAttribute('data-persona');
+            
+            // Only update if persona has changed
+            if (newPersona !== currentPersona) {
+                currentPersona = newPersona;
+                
+                // Update chat header
+                updateChatHeader(currentPersona);
+                
+                // Clear chat messages
+                chatMessages.innerHTML = '';
+                
+                // Add greeting message
+                addMessage(personaDetails[currentPersona].greeting);
+            }
+        });
+    });
+    
+    // Initialize with default persona
+    updateChatHeader(currentPersona);
+}
+
+// Add this to your DOMContentLoaded event listener
+document.addEventListener('DOMContentLoaded', function() {
+    // ... your existing initializations
+    initializeAIChatbotSystem();
 });
