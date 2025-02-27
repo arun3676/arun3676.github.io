@@ -3233,3 +3233,205 @@ html, body {
         text-align: center;
     }
 }
+
+/* Improved mobile game controls - add these to your styles.css */
+
+/* General game styles */
+.game-container {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid var(--neon-green);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin: 2rem 0;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#game-area {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+}
+
+#game-canvas {
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid var(--neon-green);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3) inset;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Mobile controls */
+.mobile-controls {
+    display: none;
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    padding: 0 10px;
+    justify-content: space-between;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.mobile-control-btn {
+    background-color: rgba(0, 255, 0, 0.3);
+    border: 2px solid var(--neon-green);
+    color: var(--neon-green);
+    font-family: 'Fira Code', monospace;
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 10px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    user-select: none;
+}
+
+.fire-btn {
+    background-color: rgba(255, 0, 0, 0.3);
+    border-color: #ff3333;
+    color: #ff3333;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    font-size: 0.9rem;
+    width: 80px;
+    height: 80px;
+}
+
+.mobile-control-btn:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+}
+
+/* Game interface */
+.game-score {
+    display: flex;
+    justify-content: space-around;
+    margin: 1rem 0;
+    font-size: 1.2rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 5px var(--neon-green);
+}
+
+.game-btn {
+    background-color: var(--neon-green);
+    color: var(--bg-dark);
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: var(--border-radius);
+    font-family: 'Fira Code', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    margin: 1rem 0;
+    transition: all var(--transition-medium) ease;
+}
+
+.game-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 15px var(--neon-green);
+}
+
+.game-message {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 30;
+}
+
+.game-message h3 {
+    color: var(--neon-green);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+.game-message p {
+    color: var(--text-white);
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    .mobile-controls {
+        display: flex;
+    }
+    
+    .game-container {
+        padding: 1rem;
+    }
+    
+    #game-canvas {
+        touch-action: none;
+    }
+    
+    .game-score {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+    
+    .game-btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .game-message h3 {
+        font-size: 2rem;
+    }
+    
+    .game-message p {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-control-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .fire-btn {
+        width: 70px;
+        height: 70px;
+        font-size: 0.8rem;
+    }
+    
+    .game-container {
+        padding: 0.8rem;
+    }
+    
+    .game-score {
+        font-size: 0.8rem;
+    }
+    
+    .game-message h3 {
+        font-size: 1.8rem;
+    }
+    
+    .game-message p {
+        font-size: 1rem;
+    }
+}

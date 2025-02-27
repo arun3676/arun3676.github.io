@@ -898,9 +898,12 @@ function initializeLinkAnimations() {
 // Add this to your scripts.js file or create a new file called game.js and link it in your HTML
 
 
-// Add this to your scripts.js file
+// Completely rewritten mobile-friendly Space Invaders implementation
+
 function initializeSpaceInvadersGame() {
     const canvas = document.getElementById('game-canvas');
+    if (!canvas) return; // Exit if canvas doesn't exist
+    
     const ctx = canvas.getContext('2d');
     const startButton = document.getElementById('start-game');
     const gameOverScreen = document.getElementById('game-over');
@@ -910,6 +913,7 @@ function initializeSpaceInvadersGame() {
     const finalScoreElement = document.getElementById('final-score');
     const levelElement = document.getElementById('level');
     const livesElement = document.getElementById('lives');
+    const gameArea = document.getElementById('game-area');
     
     // Game state
     let gameActive = false;
@@ -925,6 +929,9 @@ function initializeSpaceInvadersGame() {
     let shootCooldown = 0;
     let enemyShootInterval = 1000;
     let lastEnemyShot = 0;
+    let isMovingLeft = false;
+    let isMovingRight = false;
+    let touchX = null;
     
     // Ship class
     class Ship {
@@ -958,6 +965,18 @@ function initializeSpaceInvadersGame() {
         
         moveRight() {
             this.x = Math.min(canvas.width - this.width, this.x + this.speed);
+        }
+        
+        moveTo(targetX) {
+            // Smooth movement towards target
+            const dx = targetX - (this.x + this.width/2);
+            
+            if (Math.abs(dx) > this.speed) {
+                if (dx > 0) this.moveRight();
+                else this.moveLeft();
+            } else {
+                this.x = targetX - this.width/2;
+            }
         }
     }
     
@@ -1071,42 +1090,128 @@ function initializeSpaceInvadersGame() {
         }
     }
     
-    // Initialize the game
+    // Mobile Controls
+    function addMobileControls() {
+        // Create mobile control container if it doesn't exist
+        let mobileControls = document.querySelector('.mobile-controls');
+        if (mobileControls) {
+            mobileControls.remove();
+        }
+        
+        mobileControls = document.createElement('div');
+        mobileControls.className = 'mobile-controls';
+        
+        // Left button
+        const leftBtn = document.createElement('button');
+        leftBtn.className = 'mobile-control-btn left-btn';
+        leftBtn.innerHTML = '←';
+        
+        // Touch events for left button
+        leftBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isMovingLeft = true;
+            isMovingRight = false;
+        });
+        
+        leftBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isMovingLeft = false;
+        });
+        
+        // Fire button
+        const fireBtn = document.createElement('button');
+        fireBtn.className = 'mobile-control-btn fire-btn';
+        fireBtn.innerHTML = 'FIRE';
+        
+        // Touch events for fire button
+        fireBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            shootBullet();
+        });
+        
+        // Right button
+        const rightBtn = document.createElement('button');
+        rightBtn.className = 'mobile-control-btn right-btn';
+        rightBtn.innerHTML = '→';
+        
+        // Touch events for right button
+        rightBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isMovingRight = true;
+            isMovingLeft = false;
+        });
+        
+        rightBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isMovingRight = false;
+        });
+        
+        // Add buttons to mobile controls
+        mobileControls.appendChild(leftBtn);
+        mobileControls.appendChild(fireBtn);
+        mobileControls.appendChild(rightBtn);
+        
+        // Add mobile controls to game area
+        gameArea.appendChild(mobileControls);
+    }
+    
+    // Initialize game
     function init() {
         // Set up event listeners
-        startButton.addEventListener('click', startGame);
-        playAgainButton.addEventListener('click', resetGame);
+        if (startButton) {
+            startButton.addEventListener('click', startGame);
+        }
+        
+        if (playAgainButton) {
+            playAgainButton.addEventListener('click', resetGame);
+        }
         
         // Set up keyboard controls
         document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
         
-        // Set up touch controls for mobile
+        // Set up touch controls
+        canvas.addEventListener('touchstart', handleTouchStart);
         canvas.addEventListener('touchmove', handleTouchMove);
-        canvas.addEventListener('touchend', handleTouchShoot);
+        canvas.addEventListener('touchend', handleTouchEnd);
         
-        // Set canvas dimensions based on its display size
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+        // Check if on mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                         (window.innerWidth <= 768);
         
-        // Do an initial resize
-        window.addEventListener('resize', handleResize);
-        handleResize();
+        if (isMobile) {
+            addMobileControls();
+        }
+        
+        // Set canvas dimensions
+        adjustCanvasSize();
+        
+        // Listen for window resize
+        window.addEventListener('resize', adjustCanvasSize);
     }
     
-    // Handle window resize
-    function handleResize() {
-        // Get the container width
-        const gameArea = document.getElementById('game-area');
+    // Adjust canvas size
+    function adjustCanvasSize() {
         const containerWidth = gameArea.clientWidth;
         
-        // Calculate new canvas dimensions while maintaining aspect ratio
-        const aspectRatio = canvas.width / canvas.height;
-        const newWidth = Math.min(800, containerWidth - 20); // 20px padding
-        const newHeight = newWidth / aspectRatio;
+        // Calculate dimensions while maintaining aspect ratio
+        const maxWidth = Math.min(800, containerWidth - 20);
+        const aspectRatio = 16 / 10;
+        const maxHeight = maxWidth / aspectRatio;
         
-        // Update canvas display size
-        canvas.style.width = `${newWidth}px`;
-        canvas.style.height = `${newHeight}px`;
+        // Set actual canvas dimensions (for rendering)
+        canvas.width = maxWidth;
+        canvas.height = maxHeight;
+        
+        // Set CSS dimensions to match
+        canvas.style.width = `${maxWidth}px`;
+        canvas.style.height = `${maxHeight}px`;
+        
+        // If game is active, redraw
+        if (gameActive && playerShip) {
+            // Adjust player position based on new width
+            playerShip.x = (canvas.width / 2) - (playerShip.width / 2);
+        }
     }
     
     // Start game
@@ -1117,7 +1222,9 @@ function initializeSpaceInvadersGame() {
         lives = 3;
         
         // Hide start button
-        startButton.classList.add('hidden');
+        if (startButton) {
+            startButton.classList.add('hidden');
+        }
         
         // Update score display
         updateScore();
@@ -1125,8 +1232,8 @@ function initializeSpaceInvadersGame() {
         updateLives();
         
         // Create player ship
-        const shipWidth = 40;
-        const shipHeight = 30;
+        const shipWidth = Math.max(30, Math.min(40, canvas.width / 15));
+        const shipHeight = shipWidth * 0.75;
         playerShip = new Ship(
             canvas.width / 2 - shipWidth / 2,
             canvas.height - shipHeight - 10,
@@ -1151,21 +1258,25 @@ function initializeSpaceInvadersGame() {
         enemyBullets = [];
         
         // Hide game over screen
-        gameOverScreen.classList.add('hidden');
+        if (gameOverScreen) {
+            gameOverScreen.classList.add('hidden');
+        }
         
         // Show start button
-        startButton.classList.remove('hidden');
+        if (startButton) {
+            startButton.classList.remove('hidden');
+        }
     }
     
     // Create invaders
     function createInvaders() {
         invaders = [];
-        const rows = 3 + level - 1;
-        const cols = 8;
-        const size = 30;
-        const padding = 15;
+        const rows = Math.min(3 + level - 1, 5); // Cap at 5 rows
+        const cols = Math.min(8, Math.floor(canvas.width / 50)); // Adjust columns based on canvas width
+        const size = Math.max(20, Math.min(30, canvas.width / 20)); // Responsive size
+        const padding = size / 2;
         const startX = (canvas.width - (cols * (size + padding) - padding)) / 2;
-        const startY = 50;
+        const startY = size;
         
         const colors = ['#ff0099', '#00ffff', '#ff00ff'];
         
@@ -1192,6 +1303,19 @@ function initializeSpaceInvadersGame() {
         // Clear canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
+        // Handle continuous movement
+        if (isMovingLeft) {
+            playerShip.moveLeft();
+        }
+        
+        if (isMovingRight) {
+            playerShip.moveRight();
+        }
+        
+        if (touchX !== null) {
+            playerShip.moveTo(touchX);
+        }
+        
         // Update and draw player
         playerShip.draw();
         
@@ -1205,8 +1329,9 @@ function initializeSpaceInvadersGame() {
         handleEnemyShooting(timestamp);
         
         // Check for end of level
-        if (invaders.every(invader => !invader.alive)) {
+        if (invaders.length > 0 && invaders.every(invader => !invader.alive)) {
             levelUp();
+            return;
         }
         
         // Decrement shoot cooldown
@@ -1288,6 +1413,8 @@ function initializeSpaceInvadersGame() {
         let moveDown = false;
         let aliveInvaders = invaders.filter(invader => invader.alive);
         
+        if (aliveInvaders.length === 0) return;
+        
         // Find leftmost and rightmost invaders
         let leftmost = canvas.width;
         let rightmost = 0;
@@ -1304,7 +1431,7 @@ function initializeSpaceInvadersGame() {
         }
         
         // Move invaders
-        const speed = 1 + level * 0.5; // Increase speed with level
+        const speed = 1 + level * 0.3; // Increase speed with level, but not too fast
         invaders.forEach(invader => {
             if (!invader.alive) return;
             
@@ -1362,14 +1489,18 @@ function initializeSpaceInvadersGame() {
         updateLevel();
         
         // Show level up message
-        levelUpScreen.classList.remove('hidden');
+        if (levelUpScreen) {
+            levelUpScreen.classList.remove('hidden');
+        }
         
         // Pause the game briefly
         gameActive = false;
         
         // Continue after delay
         setTimeout(() => {
-            levelUpScreen.classList.add('hidden');
+            if (levelUpScreen) {
+                levelUpScreen.classList.add('hidden');
+            }
             createInvaders();
             
             // Increase enemy shooting frequency
@@ -1383,23 +1514,35 @@ function initializeSpaceInvadersGame() {
     // End game
     function endGame() {
         gameActive = false;
-        finalScoreElement.textContent = score;
-        gameOverScreen.classList.remove('hidden');
+        
+        if (finalScoreElement) {
+            finalScoreElement.textContent = score;
+        }
+        
+        if (gameOverScreen) {
+            gameOverScreen.classList.remove('hidden');
+        }
     }
     
     // Update score display
     function updateScore() {
-        scoreElement.textContent = score;
+        if (scoreElement) {
+            scoreElement.textContent = score;
+        }
     }
     
     // Update level display
     function updateLevel() {
-        levelElement.textContent = level;
+        if (levelElement) {
+            levelElement.textContent = level;
+        }
     }
     
     // Update lives display
     function updateLives() {
-        livesElement.textContent = lives;
+        if (livesElement) {
+            livesElement.textContent = lives;
+        }
     }
     
     // Handle keyboard controls
@@ -1407,172 +1550,76 @@ function initializeSpaceInvadersGame() {
         if (!gameActive) return;
         
         if (e.key === 'ArrowLeft') {
-            playerShip.moveLeft();
+            isMovingLeft = true;
+            isMovingRight = false;
         } else if (e.key === 'ArrowRight') {
-            playerShip.moveRight();
+            isMovingRight = true;
+            isMovingLeft = false;
         } else if (e.key === ' ' || e.key === 'ArrowUp') {
             shootBullet();
         }
     }
     
+    function handleKeyUp(e) {
+        if (e.key === 'ArrowLeft') {
+            isMovingLeft = false;
+        } else if (e.key === 'ArrowRight') {
+            isMovingRight = false;
+        }
+    }
+    
+    // Handle touch start
+    function handleTouchStart(e) {
+        if (!gameActive) return;
+        
+        const touch = e.touches[0];
+        const rect = canvas.getBoundingClientRect();
+        touchX = (touch.clientX - rect.left) * (canvas.width / rect.width);
+        
+        // Auto-fire on touch for mobile
+        shootBullet();
+    }
+    
+    // Handle touch move
     function handleTouchMove(e) {
         if (!gameActive) return;
         e.preventDefault();
         
         const touch = e.touches[0];
         const rect = canvas.getBoundingClientRect();
-        const x = (touch.clientX - rect.left) * (canvas.width / rect.width);
-        
-        // Move player ship to touch position
-        playerShip.x = Math.max(0, Math.min(canvas.width - playerShip.width, x - playerShip.width / 2));
+        touchX = (touch.clientX - rect.left) * (canvas.width / rect.width);
     }
     
-    // Add on-screen controls for mobile
-    function addMobileControls() {
-        const gameArea = document.getElementById('game-area');
-        
-        // Create mobile control overlay
-        const mobileControls = document.createElement('div');
-        mobileControls.className = 'mobile-controls';
-        
-        // Left button
-        const leftBtn = document.createElement('button');
-        leftBtn.className = 'mobile-control-btn left-btn';
-        leftBtn.innerHTML = '&lt;';
-        leftBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            isMovingLeft = true;
-        });
-        leftBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            isMovingLeft = false;
-        });
-        
-        // Right button
-        const rightBtn = document.createElement('button');
-        rightBtn.className = 'mobile-control-btn right-btn';
-        rightBtn.innerHTML = '&gt;';
-        rightBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            isMovingRight = true;
-        });
-        rightBtn.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            isMovingRight = false;
-        });
-        
-        // Fire button
-        const fireBtn = document.createElement('button');
-        fireBtn.className = 'mobile-control-btn fire-btn';
-        fireBtn.innerHTML = 'FIRE';
-        fireBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            shootBullet();
-        });
-        
-        // Add buttons to mobile controls
-        mobileControls.appendChild(leftBtn);
-        mobileControls.appendChild(fireBtn);
-        mobileControls.appendChild(rightBtn);
-        
-        // Add mobile controls to game area
-        gameArea.appendChild(mobileControls);
+    // Handle touch end
+    function handleTouchEnd(e) {
+        touchX = null;
     }
     
-    // Add these variables at the beginning of your initializeSpaceInvadersGame function
-    let isMovingLeft = false;
-    let isMovingRight = false;
-    
-    // Modify the gameLoop function to use the movement flags
-    function gameLoop(timestamp) {
-        if (!gameActive) return;
+    // Shoot bullet
+    function shootBullet() {
+        if (shootCooldown > 0 || !gameActive) return;
         
-        // Calculate delta time
-        const deltaTime = timestamp - lastTime;
-        lastTime = timestamp;
+        const bullet = new Bullet(
+            playerShip.x + playerShip.width / 2,
+            playerShip.y,
+            3,
+            10,
+            '#0f0',
+            10
+        );
         
-        // Clear canvas
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        bullets.push(bullet);
         
-        // Handle continuous movement for mobile
-        if (isMovingLeft) {
-            playerShip.moveLeft();
-        }
-        if (isMovingRight) {
-            playerShip.moveRight();
-        }
-        
-        // Rest of your existing gameLoop code...
-        
-        // Update and draw player
-        playerShip.draw();
-        
-        // Update and draw bullets
-        updateBullets(deltaTime);
-        
-        // Update and draw invaders
-        updateInvaders(deltaTime);
-        
-        // Enemy shooting
-        handleEnemyShooting(timestamp);
-        
-        // Check for end of level
-        if (invaders.every(invader => !invader.alive)) {
-            levelUp();
-        }
-        
-        // Decrement shoot cooldown
-        if (shootCooldown > 0) {
-            shootCooldown -= deltaTime;
-        }
-        
-        // Continue the game loop
-        requestAnimationFrame(gameLoop);
+        // Set cooldown to prevent rapid fire
+        shootCooldown = 300;
     }
     
-    // Add this to your init function
-    function init() {
-        // Your existing code...
-        
-        // Detect if we're on mobile
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        
-        if (isMobile) {
-            addMobileControls();
-        }
-        
-        // Adjust canvas size based on device
-        function adjustCanvasSize() {
-            const gameArea = document.getElementById('game-area');
-            const containerWidth = gameArea.clientWidth;
-            
-            // Set maximum dimensions while maintaining aspect ratio
-            const maxWidth = Math.min(800, containerWidth - 20);
-            const aspectRatio = 16 / 10;
-            const maxHeight = maxWidth / aspectRatio;
-            
-            // Update canvas size
-            canvas.width = maxWidth;
-            canvas.height = maxHeight;
-            
-            // Update canvas display size
-            canvas.style.width = `${maxWidth}px`;
-            canvas.style.height = `${maxHeight}px`;
-        }
-        
-        // Call adjustCanvasSize initially and on window resize
-        adjustCanvasSize();
-        window.addEventListener('resize', adjustCanvasSize);
-        
-        // Your existing code...
-    }
     // Initialize the game
     init();
 }
 
-// Add this to your DOMContentLoaded event listener in scripts.js
+// Add this to your DOMContentLoaded event listener 
 document.addEventListener('DOMContentLoaded', function() {
-    // ... your existing initializations
     initializeSpaceInvadersGame();
 });
 function initializeInstagramLanding() {
@@ -2037,7 +2084,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // Add this to your scripts.js file
 
-// Multi-personality AI Chatbot System
+// Knowledge-Centric AI Chatbot System
 function initializeAIChatbotSystem() {
     const chatMessages = document.getElementById('chat-messages');
     const userMessageInput = document.getElementById('user-message');
@@ -2059,7 +2106,9 @@ function initializeAIChatbotSystem() {
     
     // Insert the persona selector before the chat container
     const chatContainer = document.querySelector('.chatbot-container');
-    chatSection.insertBefore(personaSelector, chatContainer);
+    if (chatSection && chatContainer) {
+        chatSection.insertBefore(personaSelector, chatContainer);
+    }
     
     // Initialize current persona
     let currentPersona = 'grumpy';
@@ -2088,84 +2137,265 @@ function initializeAIChatbotSystem() {
         }
     };
     
-    // Persona responses
-    const grumpyCatResponses = [
-        "Do I look like I care? Because I don't.",
-        "Wow, that's so interesting... said no cat ever.",
-        "I was having a great nap until you decided to talk.",
-        "The audacity of humans never ceases to amaze me.",
-        "Let me check my schedule... nope, don't care.",
-        "I would answer, but I'm busy ignoring you.",
-        "Is this conversation really necessary?",
-        "Humans and their silly questions...",
-        "That deserves a solid 'meh' from me.",
-        "I'd rather be licking my fur than answering that."
-    ];
-    
-    const philosopherResponses = [
-        "Perhaps the question itself contains its answer, if we examine our assumptions.",
-        "As Socrates would say, true wisdom begins with acknowledging how little we know.",
-        "To understand this, we must first question the nature of understanding itself.",
-        "The ancient Stoics would suggest that our reaction to events, not the events themselves, defines our experience.",
-        "Consider this: are we seeking truth, or merely confirmation of what we already believe?",
-        "The universe unfolds according to patterns we can glimpse but never fully comprehend.",
-        "Existence precedes essence - we define ourselves through our choices and actions.",
-        "The paradox of knowledge is that the more we learn, the more we realize how much we don't know.",
-        "Truth is not merely correspondence with facts, but coherence with our broader understanding of reality.",
-        "The pursuit of wisdom is not a destination but an endless journey of questioning."
-    ];
-    
-    const cricketerResponses = [
-        "Well, in cricketing terms, that's like trying to hit a yorker for six - challenging but doable!",
-        "The stats don't lie, mate. That's a textbook approach to the game.",
-        "If you look at how Kohli plays that shot, you'll understand the technique better.",
-        "The pitch conditions make all the difference. It's like comparing Lords to the WACA!",
-        "That's a googly of a question! Let me break down the answer for you.",
-        "In the history of Test cricket, that strategy has proven quite effective, especially in the subcontinent.",
-        "The IPL has completely revolutionized that aspect of cricket, no doubt about it.",
-        "It's all about the wrist position. That's what separates good spinners from great ones.",
-        "The DRS system would definitely have something to say about that decision!",
-        "Cricket is a game of glorious uncertainties, but the data suggests a clear pattern here."
-    ];
-    
-    const comedianResponses = [
-        "That's what she said! Sorry, couldn't help myself.",
-        "If that were any more obvious, it would need its own Instagram account.",
-        "That reminds me of the time I tried to explain variables to my cat. It was a constant struggle!",
-        "I'd make a joke about arrays, but they're all out of index.",
-        "Life is like Git. We all just commit and hope for the best.",
-        "I'm like HTML - not very functional but structurally necessary!",
-        "That idea is so half-baked it's still cold in the middle.",
-        "I'm not saying your question is recursive, but have you considered asking yourself?",
-        "If programming languages were comedians, JavaScript would definitely be the one with identity issues.",
-        "That's about as useful as a screen door on a submarine!"
-    ];
-    
-    // Special keywords for each persona
-    const personaKeywords = {
-        grumpy: {
-            "food": "Finally, a topic worth discussing. Where is it?",
-            "pet": "You may touch me for exactly 2.5 pets. Any more and I attack.",
-            "sleep": "The only activity I respect. Now shush, you're cutting into my 18 hours.",
-            "dog": "Don't mention those slobbering beasts in my presence."
+    // Knowledge Base for Philosopher Persona
+    const philosopherKnowledge = {
+        "metaphysics": {
+            explanation: "Metaphysics is the branch of philosophy that examines the fundamental nature of reality, including the relationship between mind and matter, substance and attribute, potentiality and actuality.",
+            concepts: [
+                "Metaphysics asks questions like 'What is the nature of reality?' and 'What is the relationship between mind and matter?'",
+                "Prominent metaphysical theories include idealism (reality is mentally constructed), materialism (reality is purely physical), and dualism (mind and matter are separate substances).",
+                "Modern metaphysics often addresses questions of time, identity, free will, and the nature of possibility and necessity."
+            ]
         },
-        philosopher: {
-            "meaning": "Meaning is not something discovered, but rather created through our actions and interpretations.",
-            "existence": "To exist is to be perceived, but consciousness adds the dimension of knowing that one exists.",
-            "truth": "Truth may be viewed as correspondence with reality, coherence with a system of beliefs, or what is pragmatically useful.",
-            "free will": "Are our choices truly free, or merely the inevitable outcome of prior causes? This question has puzzled philosophers for millennia."
+        "epistemology": {
+            explanation: "Epistemology is the theory of knowledge, especially with regard to its methods, validity, scope, and the distinction between justified belief and opinion.",
+            concepts: [
+                "Epistemology examines how we know what we know, and the reliability of different types of knowledge.",
+                "Key epistemological positions include rationalism (knowledge comes from reason), empiricism (knowledge comes from sensory experience), and skepticism (true knowledge is impossible).",
+                "Contemporary epistemology addresses questions of justified true belief, skeptical challenges, and social dimensions of knowledge."
+            ]
         },
-        cricketer: {
-            "virat": "Virat Kohli's cover drive is perhaps the most elegant shot in modern cricket. Textbook technique with wrists of steel!",
-            "sachin": "The Little Master! Sachin Tendulkar holds nearly every batting record worth having. 100 international centuries says it all.",
-            "t20": "T20 has revolutionized cricket with power hitting, innovative shots, and specialized tactics. The game evolves!",
-            "ipl": "The IPL changed cricket economics forever. It's the perfect blend of cricket, entertainment, and business."
+        "ethics": {
+            explanation: "Ethics or moral philosophy is concerned with questions of how people ought to act, and the search for a definition of right conduct and the good life.",
+            concepts: [
+                "Major ethical frameworks include virtue ethics (focus on character), deontology (focus on rules and duties), and consequentialism (focus on outcomes).",
+                "Applied ethics examines specific controversial issues like abortion, animal rights, and euthanasia.",
+                "Meta-ethics investigates where our ethical principles come from and what they mean."
+            ]
         },
-        comedian: {
-            "joke": "Why don't scientists trust atoms? Because they make up everything! *adjusts tie* I'll be here all week, folks.",
-            "funny": "You know what's funny? The word 'queue' is just the letter 'Q' followed by four silent letters. They're just waiting in line!",
-            "laugh": "Did you hear about the programmer who got stuck in the shower? The instructions said: Lather, Rinse, Repeat.",
-            "code": "Why do programmers prefer dark mode? Because light attracts bugs!"
+        "logic": {
+            explanation: "Logic is the systematic study of valid inference and the principles of reasoning. It examines how conclusions follow from premises in a valid argument.",
+            concepts: [
+                "Formal logic uses symbolic systems to analyze the structure of arguments independent of their content.",
+                "Deductive logic concerns arguments where the conclusion must follow from the premises, while inductive logic deals with probable conclusions.",
+                "Logical fallacies are common errors in reasoning that undermine the validity of an argument."
+            ]
+        },
+        "existentialism": {
+            explanation: "Existentialism is a philosophical movement emphasizing individual existence, freedom, and choice. It focuses on the question of human existence and the feeling that there is no purpose or explanation at the core of existence.",
+            concepts: [
+                "Key existentialist themes include freedom, responsibility, authenticity, and the meaning of life in an apparently meaningless universe.",
+                "Notable existentialist philosophers include Jean-Paul Sartre, Simone de Beauvoir, and Albert Camus.",
+                "Existentialism emphasizes that individuals are entirely free and must take personal responsibility for themselves."
+            ]
+        },
+        "consciousness": {
+            explanation: "Consciousness refers to awareness or perception—the state or quality of being aware of an external object or something within oneself. It's considered the most familiar yet mysterious aspect of our lives.",
+            concepts: [
+                "The 'hard problem of consciousness' asks why physical processes in the brain give rise to subjective experience.",
+                "Theories of consciousness include higher-order theories (consciousness is awareness of mental states), global workspace theory (consciousness broadcasts information throughout the brain), and integrated information theory (consciousness is integrated information).",
+                "The study of consciousness sits at the intersection of philosophy, cognitive science, neuroscience, and psychology."
+            ]
+        },
+        "free will": {
+            explanation: "Free will is the ability to choose between different possible courses of action unimpeded. It's closely linked to moral responsibility, praise, guilt, sin, and other judgments which apply only to actions that are freely chosen.",
+            concepts: [
+                "Major positions include compatibilism (free will is compatible with determinism), hard determinism (free will is an illusion because all events are caused), and libertarianism (free will exists and is incompatible with determinism).",
+                "Scientific findings in neuroscience and psychology have raised questions about the nature and existence of free will.",
+                "The free will debate has implications for moral responsibility, legal culpability, and personal identity."
+            ]
+        },
+        "meaning of life": {
+            explanation: "The question of the meaning of life pertains to the significance of living or existence in general. Many philosophical traditions have addressed this question, offering various perspectives on purpose, value, and fulfillment.",
+            concepts: [
+                "Religious perspectives often tie life's meaning to divine purpose or afterlife.",
+                "Existentialist philosophers suggest we must create our own meaning in an otherwise meaningless universe.",
+                "Other approaches include seeking happiness, serving others, personal growth, or connection to something larger than ourselves."
+            ]
+        },
+        "mind-body problem": {
+            explanation: "The mind-body problem is the question of how the mind relates to the physical body. It examines the relationship between consciousness and the brain.",
+            concepts: [
+                "Dualism maintains that mind and body are fundamentally different kinds of things.",
+                "Physicalism (or materialism) claims that the mind is a purely physical phenomenon, produced by the brain.",
+                "Other positions include idealism (only minds exist), panpsychism (consciousness is fundamental and universal), and neutral monism (mind and matter arise from a more basic reality)."
+            ]
+        },
+        "aesthetics": {
+            explanation: "Aesthetics is the philosophical study of beauty and taste. It analyzes the nature of art, beauty, and taste, and the creation and appreciation of beauty.",
+            concepts: [
+                "Aesthetic inquiry addresses questions like 'What makes something beautiful?' and 'What is the nature of artistic expression?'",
+                "Major theories include formalism (beauty lies in formal properties), expressionism (art expresses emotion), and institutionalism (art is whatever the art world recognizes as art).",
+                "Aesthetics also examines the relationship between art and morality, knowledge, and cultural context."
+            ]
+        }
+    };
+
+    // Knowledge Base for Cricket Persona
+    const cricketKnowledge = {
+        "batting": {
+            explanation: "Batting in cricket is the act of hitting the ball with a cricket bat to score runs or defend one's wicket.",
+            concepts: [
+                "Batting techniques include the forward defense, backward defense, cover drive, pull shot, and hook shot.",
+                "A batting average is calculated by dividing the total number of runs scored by the number of times dismissed.",
+                "The highest Test batting average belongs to Sir Donald Bradman, who averaged 99.94 runs per dismissal."
+            ]
+        },
+        "bowling": {
+            explanation: "Bowling in cricket is the action of propelling the ball toward the wicket defended by a batter.",
+            concepts: [
+                "The main types of bowlers are pace bowlers (who rely on speed) and spin bowlers (who rely on spin and flight).",
+                "Pace bowling variations include swing bowling, seam bowling, cutters, and bouncers.",
+                "Spin bowling variations include off-spin, leg-spin, googly, doosra, and arm ball."
+            ]
+        },
+        "fielding": {
+            explanation: "Fielding in cricket involves players attempting to catch or stop the ball to limit runs and dismiss batters.",
+            concepts: [
+                "Key fielding positions include slip, gully, point, cover, mid-off, mid-on, mid-wicket, fine leg, and long-on.",
+                "Fielding skills include catching, throwing, stopping, and intercepting the ball.",
+                "The wicket-keeper is a specialized fielder who stands behind the wicket to catch balls that the batter misses."
+            ]
+        },
+        "ipl": {
+            explanation: "The Indian Premier League (IPL) is a professional Twenty20 cricket league in India contested by ten city-based franchise teams.",
+            concepts: [
+                "The IPL was founded by the Board of Control for Cricket in India (BCCI) in 2007.",
+                "It's one of the most-attended cricket leagues in the world and has the highest broadcast viewership among cricket leagues.",
+                "The IPL has transformed cricket with high player salaries, entertainment elements, and a blend of international and domestic talent."
+            ]
+        },
+        "test cricket": {
+            explanation: "Test cricket is the longest form of cricket, played between national teams that have been granted Test status by the International Cricket Council (ICC).",
+            concepts: [
+                "Test matches can last up to five days, with each team having two innings to bat.",
+                "Test cricket is considered the ultimate test of a cricketer's skills and endurance.",
+                "The first official Test match was played between Australia and England in Melbourne in 1877."
+            ]
+        },
+        "t20": {
+            explanation: "Twenty20 (T20) is a shortened format of cricket where each team faces a maximum of 20 overs.",
+            concepts: [
+                "T20 matches typically last about three hours, making them more accessible to spectators compared to longer formats.",
+                "The format encourages aggressive batting, innovative shots, and specialized tactics.",
+                "The first official T20 international was played between Australia and New Zealand in 2005."
+            ]
+        },
+        "virat kohli": {
+            explanation: "Virat Kohli is an Indian international cricketer and former captain of the Indian national team.",
+            concepts: [
+                "Kohli is considered one of the best batsmen in the world and has broken numerous batting records.",
+                "He's known for his aggressive battling style, fitness standards, and passionate leadership.",
+                "Kohli has won numerous awards including multiple ICC Cricketer of the Year awards."
+            ]
+        },
+        "sachin tendulkar": {
+            explanation: "Sachin Tendulkar is a former Indian cricketer widely regarded as one of the greatest batsmen in cricket history.",
+            concepts: [
+                "Tendulkar holds the record for the most runs and most centuries in both Test and ODI cricket.",
+                "He played international cricket for 24 years from 1989 to 2013.",
+                "Tendulkar was the first player to score a double century in One Day International cricket."
+            ]
+        },
+        "cricket world cup": {
+            explanation: "The Cricket World Cup is the international championship of One Day International (ODI) cricket.",
+            concepts: [
+                "The tournament is held every four years, with preliminary qualification rounds leading up to a finals tournament.",
+                "The first Cricket World Cup was organized in England in 1975.",
+                "Australia has won the most World Cups, with India, West Indies, and England also having multiple victories."
+            ]
+        },
+        "drs": {
+            explanation: "The Decision Review System (DRS) is a technology-based system used in cricket to assist the match officials in making decisions.",
+            concepts: [
+                "DRS includes technologies such as Hawk-Eye for tracking ball trajectory, Ultra Edge or Snickometer for detecting edges, and Hot Spot for identifying contact between ball and bat or pad.",
+                "Teams can challenge on-field decisions by requesting a review by the third umpire who analyses video replays and technology data.",
+                "Each team is allowed a limited number of unsuccessful review requests per innings."
+            ]
+        }
+    };
+
+    // Knowledge Base for Comedy Persona
+    const comedyKnowledge = {
+        "programming jokes": {
+            explanation: "Jokes that play on programming concepts, stereotypes, and the quirks of coding languages.",
+            jokes: [
+                "Why do programmers prefer dark mode? Because light attracts bugs!",
+                "Why do Java developers wear glasses? Because they don't C#!",
+                "Why was the JavaScript developer sad? Because he didn't know how to 'null' his feelings!",
+                "A SQL query walks into a bar, walks up to two tables and asks, 'Can I join you?'",
+                "How many programmers does it take to change a light bulb? None, that's a hardware problem!"
+            ]
+        },
+        "tech jokes": {
+            explanation: "Jokes about technology, devices, and the digital world.",
+            jokes: [
+                "I told my computer I needed a break, and now it won't stop sending me vacation ads.",
+                "My wife accused me of being too immersed in the computer. I told her she's just not my type.",
+                "Why don't scientists trust atoms? Because they make up everything!",
+                "I would tell you a UDP joke, but you might not get it.",
+                "I've been told I'm addicted to Twitter. I'm following a 12-step program."
+            ]
+        },
+        "dad jokes": {
+            explanation: "Short, sometimes punny jokes characterized by simple wordplay and a corny delivery.",
+            jokes: [
+                "I'm on a seafood diet. I see food and I eat it!",
+                "Why don't eggs tell jokes? They'd crack each other up!",
+                "What do you call a fake noodle? An impasta!",
+                "How do you organize a space party? You planet!",
+                "What did the janitor say when he jumped out of the closet? 'Supplies!'"
+            ]
+        },
+        "puns": {
+            explanation: "Jokes exploiting multiple meanings of words or words that sound similar but have different meanings.",
+            jokes: [
+                "I used to be a baker, but I couldn't make enough dough.",
+                "Atheism is a non-prophet organization.",
+                "The past, present, and future walked into a bar. It was tense.",
+                "I'm reading a book about anti-gravity. It's impossible to put down!",
+                "I wondered why the baseball was getting bigger. Then it hit me."
+            ]
+        },
+        "one-liners": {
+            explanation: "Short, witty jokes delivered in a single line.",
+            jokes: [
+                "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+                "I'm skeptical of anyone who tells me they do CrossFit – how do you know if someone does CrossFit? Don't worry, they'll tell you.",
+                "I asked the gym instructor if he could teach me to do the splits. He replied, 'How flexible are you?' I said, 'I can't make Tuesdays.'",
+                "I was wondering why the frisbee kept getting bigger and bigger, and then it hit me.",
+                "The easiest time to add insult to injury is when you're signing someone's cast."
+            ]
+        },
+        "workplace humor": {
+            explanation: "Jokes about office life, work culture, and professional frustrations.",
+            jokes: [
+                "My boss told me to have a good day, so I went home.",
+                "I always tell new hires, don't think of me as your boss, think of me as a friend who can fire you.",
+                "The best way to appreciate your job is to imagine yourself without one.",
+                "If you think your boss is stupid, remember: you wouldn't have a job if they were smarter.",
+                "I like work. It fascinates me. I can sit and look at it for hours."
+            ]
+        },
+        "technology fails": {
+            explanation: "Humorous stories about technology going wrong or user errors.",
+            jokes: [
+                "I changed all my passwords to 'incorrect' so whenever I forget, it tells me 'Your password is incorrect.'",
+                "My computer crashed today, so I restarted it. Now it thinks it's 1998 and keeps trying to connect me to AOL.",
+                "I tried to take a screenshot of my error message, but when I pressed print screen, it just printed 'screen'.",
+                "Tech support asked me if I had a problem with Windows. I said no, but my door's been sticking for weeks.",
+                "I finally set up my smart home, but now my toaster and fridge are gossiping about my eating habits."
+            ]
+        },
+        "ai jokes": {
+            explanation: "Jokes about artificial intelligence, robots, and machine learning.",
+            jokes: [
+                "Why can't robots tell jokes? Their delivery is too mechanical!",
+                "How many AI engineers does it take to change a light bulb? None, they just redefine darkness as the preferred standard.",
+                "An AI walked into a bar. The bartender asked, 'What'll you have?' The AI replied, 'Whatever the data suggests most humans order.'",
+                "Why was the robot couple's wedding so beautiful? Because they were made for each other.",
+                "My smart home assistant and I had an argument. It keeps bringing up things from my browser history."
+            ]
+        },
+        "internet humor": {
+            explanation: "Jokes about internet culture, social media, and online behavior.",
+            jokes: [
+                "I don't always browse the internet, but when I do, eyebrows.",
+                "I'm great at multitasking. I can waste time, be unproductive, and procrastinate all at once.",
+                "My email password has been hacked. That's the third time I've had to rename my dog.",
+                "I finally deleted my Facebook account when it asked me if I knew me, based on photos.",
+                "The internet is just a world passing notes in a classroom."
+            ]
         }
     };
     
@@ -2197,6 +2427,8 @@ function initializeAIChatbotSystem() {
     // Function to update the chat header
     function updateChatHeader(persona) {
         const chatHeader = document.querySelector('.chat-header');
+        if (!chatHeader) return;
+        
         const personaInfo = personaDetails[persona];
         
         chatHeader.innerHTML = `
@@ -2207,6 +2439,8 @@ function initializeAIChatbotSystem() {
     
     // Function to add message to chat
     function addMessage(text, isUser = false) {
+        if (!chatMessages) return;
+        
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message');
         messageDiv.classList.add(isUser ? 'user' : 'bot');
@@ -2221,42 +2455,163 @@ function initializeAIChatbotSystem() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
     
+    // Grumpy Cat responses (less knowledge-based, more character-based)
+    const grumpyCatResponses = [
+        "Do I look like I care? Because I don't.",
+        "Wow, that's so interesting... said no cat ever.",
+        "I was having a great nap until you decided to talk.",
+        "The audacity of humans never ceases to amaze me.",
+        "Let me check my schedule... nope, don't care.",
+        "I would answer, but I'm busy ignoring you.",
+        "Is this conversation really necessary?",
+        "Humans and their silly questions...",
+        "That deserves a solid 'meh' from me.",
+        "I'd rather be licking my fur than answering that."
+    ];
+    
+    // Special keywords for grumpy cat
+    const grumpyCatKeywords = {
+        "food": "Finally, a topic worth discussing. Where is it?",
+        "pet": "You may touch me for exactly 2.5 pets. Any more and I attack.",
+        "sleep": "The only activity I respect. Now shush, you're cutting into my 18 hours.",
+        "dog": "Don't mention those slobbering beasts in my presence."
+    };
+    
     // Function to get persona response
     function getPersonaResponse(persona, userMessage) {
         const lowercaseMessage = userMessage.toLowerCase();
         
-        // Check for special keyword responses
-        const keywords = personaKeywords[persona];
-        for (const [key, value] of Object.entries(keywords)) {
-            if (lowercaseMessage.includes(key)) {
-                return value;
+        switch(persona) {
+            case 'grumpy':
+                // Check for special keywords
+                for (const [key, value] of Object.entries(grumpyCatKeywords)) {
+                    if (lowercaseMessage.includes(key)) {
+                        return value;
+                    }
+                }
+                // Return random response
+                return grumpyCatResponses[Math.floor(Math.random() * grumpyCatResponses.length)];
+                
+            case 'philosopher':
+                return getPhilosopherResponse(lowercaseMessage);
+                
+            case 'cricketer':
+                return getCricketerResponse(lowercaseMessage);
+                
+            case 'comedian':
+                return getComedianResponse(lowercaseMessage);
+                
+            default:
+                return "I'm not sure how to respond to that.";
+        }
+    }
+    
+    // Function to get philosopher response
+    function getPhilosopherResponse(message) {
+        // Check each philosophical topic in our knowledge base
+        for (const [topic, data] of Object.entries(philosopherKnowledge)) {
+            if (message.includes(topic)) {
+                // Return explanation and a random concept
+                const randomConcept = data.concepts[Math.floor(Math.random() * data.concepts.length)];
+                return `${data.explanation}\n\nFurthermore: ${randomConcept}`;
             }
         }
         
-        // Get random response based on persona
-        let responses;
-        switch(persona) {
-            case 'grumpy':
-                responses = grumpyCatResponses;
-                break;
-            case 'philosopher':
-                responses = philosopherResponses;
-                break;
-            case 'cricketer':
-                responses = cricketerResponses;
-                break;
-            case 'comedian':
-                responses = comedianResponses;
-                break;
-            default:
-                responses = grumpyCatResponses;
+        // Look for philosophy-related terms if no direct topic match
+        if (message.includes("philosophy") || message.includes("think") || message.includes("idea") || 
+            message.includes("concept") || message.includes("theory") || message.includes("knowledge")) {
+            
+            // Generate a thoughtful but general philosophical response
+            const generalResponses = [
+                "That's an intriguing question that touches on fundamental aspects of human experience. The examined life, as Socrates suggested, involves deep reflection on such matters.",
+                "As we navigate the complexities of existence, such questions invite us to reconsider our assumptions and explore the boundaries of our understanding.",
+                "Many philosophical traditions have contemplated this matter. Some emphasize rational inquiry, while others focus on lived experience or intuitive understanding.",
+                "This relates to the ancient philosophical quest to understand ourselves and our place in the cosmos - a journey that continues to evolve through dialectical engagement.",
+                "The paradox inherent in your question reveals the tension between what we know and what we can know - a central theme in epistemology since Plato's cave allegory."
+            ];
+            
+            return generalResponses[Math.floor(Math.random() * generalResponses.length)];
         }
         
-        return responses[Math.floor(Math.random() * responses.length)];
+        // Default philosophical response for other messages
+        return "That question leads us to consider the nature of meaning itself. What constitutes a meaningful inquiry depends greatly on our framework of understanding and the values we bring to our philosophical investigations.";
+    }
+    
+    // Function to get cricketer response
+    function getCricketerResponse(message) {
+        // Check each cricket topic in our knowledge base
+        for (const [topic, data] of Object.entries(cricketKnowledge)) {
+            if (message.includes(topic)) {
+                // Return explanation and a random concept
+                const randomConcept = data.concepts[Math.floor(Math.random() * data.concepts.length)];
+                return `${data.explanation}\n\nImportantly: ${randomConcept}`;
+            }
+        }
+        
+        // Look for cricket-related terms if no direct topic match
+        if (message.includes("cricket") || message.includes("match") || message.includes("wicket") || 
+            message.includes("bat") || message.includes("bowl") || message.includes("run") || 
+            message.includes("over") || message.includes("score") || message.includes("odi")) {
+            
+            // Generate a general cricket response
+            const generalResponses = [
+                "Cricket is a beautiful game of strategy, skill, and mental fortitude. The balance between bat and ball makes every match a unique contest.",
+                "The essence of cricket lies in its traditions combined with modern innovations. From Test matches to T20s, the sport continues to evolve while honoring its rich history.",
+                "Cricket statistics tell fascinating stories about players and matches. The numbers reveal patterns of performance under different conditions and against various opponents.",
+                "The tactical elements of field placements, bowling changes, and batting approaches make cricket a thinking person's game - a chess match played with bat and ball.",
+                "Cricket's global community unites fans across countries and cultures. The passion for the game transcends boundaries and creates shared experiences."
+            ];
+            
+            return generalResponses[Math.floor(Math.random() * generalResponses.length)];
+        }
+        
+        // Default cricket response for other messages
+        return "Well, in cricket terms, that's like facing a googly on a turning pitch - challenging but not impossible! The beauty of cricket is that it teaches you to adapt to different situations, just like in life.";
+    }
+    
+    // Function to get comedian response
+    function getComedianResponse(message) {
+        // Check each comedy topic in our knowledge base
+        for (const [topic, data] of Object.entries(comedyKnowledge)) {
+            if (message.includes(topic)) {
+                // Return a random joke from the category
+                const randomJoke = data.jokes[Math.floor(Math.random() * data.jokes.length)];
+                return `Here's a great ${topic} joke: ${randomJoke}`;
+            }
+        }
+        
+        // Check if asking for a joke
+        if (message.includes("joke") || message.includes("funny") || message.includes("laugh") || 
+            message.includes("humor") || message.includes("comedy")) {
+            
+            // Combine all jokes from all categories
+            const allJokes = Object.values(comedyKnowledge).flatMap(data => data.jokes);
+            const randomJoke = allJokes[Math.floor(Math.random() * allJokes.length)];
+            
+            return `Here's a joke for you: ${randomJoke}`;
+        }
+        
+        // Turn user's message into a joke setup
+        if (message.length > 10) {
+            const jokeResponses = [
+                `That reminds me of a joke... "${message}" That's what SHE said! *adjusts tie*`,
+                `You know what they say about "${message.substring(0, 10)}..." It's all fun and games until someone loses their Wi-Fi connection!`,
+                `"${message}" - that's exactly what my computer said right before it crashed! And people say AI doesn't have timing!`,
+                `If I had a dollar for every time someone told me "${message.substring(0, 10)}..." I'd have enough to pay my cloud storage bill!`,
+                `"${message}" sounds like the beginning of a dad joke that even I'm too embarrassed to finish!`
+            ];
+            
+            return jokeResponses[Math.floor(Math.random() * jokeResponses.length)];
+        }
+        
+        // Default comedy response
+        return "I'd make a joke about that, but good comedy requires good timing, and my sense of timing was programmed by developers who think 'deadlines' are just suggestions!";
     }
     
     // Handle send button click
     function handleSend() {
+        if (!userMessageInput || !sendButton) return;
+        
         const userMessage = userMessageInput.value.trim();
         
         if (userMessage) {
@@ -2275,13 +2630,17 @@ function initializeAIChatbotSystem() {
     }
     
     // Event listeners
-    sendButton.addEventListener('click', handleSend);
+    if (sendButton) {
+        sendButton.addEventListener('click', handleSend);
+    }
     
-    userMessageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleSend();
-        }
-    });
+    if (userMessageInput) {
+        userMessageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSend();
+            }
+        });
+    }
     
     // Persona selection
     const personaOptions = document.querySelectorAll('.persona-option');
@@ -2302,7 +2661,9 @@ function initializeAIChatbotSystem() {
                 updateChatHeader(currentPersona);
                 
                 // Clear chat messages
-                chatMessages.innerHTML = '';
+                if (chatMessages) {
+                    chatMessages.innerHTML = '';
+                }
                 
                 // Add greeting message
                 addMessage(personaDetails[currentPersona].greeting);
@@ -2312,6 +2673,11 @@ function initializeAIChatbotSystem() {
     
     // Initialize with default persona
     updateChatHeader(currentPersona);
+    
+    // Add initial greeting
+    if (chatMessages && chatMessages.children.length === 0) {
+        addMessage(personaDetails[currentPersona].greeting);
+    }
 }
 
 // Add this to your DOMContentLoaded event listener
